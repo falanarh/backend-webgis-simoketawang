@@ -17,12 +17,12 @@ const registerAdmin = async (username: string, password: string) => {
 const authenticateAdmin = async (username: string, password: string) => {
   const admin = await Admin.findOne({ username });
   if (!admin) {
-    throw new Error('Invalid credentials');
+    throw new Error('Username tidak ditemukan');
   }
 
   const isMatch = await bcrypt.compare(password, admin.password);
   if (!isMatch) {
-    throw new Error('Invalid credentials');
+    throw new Error('Password salah');
   }
 
   const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET!, {
