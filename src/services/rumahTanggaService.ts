@@ -9,24 +9,24 @@ const addRumahTangga = async (data: IRumahTangga) => {
   return newRumahTangga;
 };
 
-const updateRumahTangga = async (id: string, data: Partial<IRumahTangga>) => {
-  const updatedRumahTangga = await RumahTangga.findByIdAndUpdate(id, data, { new: true });
+const updateRumahTangga = async (kode: string, data: Partial<IRumahTangga>) => {
+  const updatedRumahTangga = await RumahTangga.findOneAndUpdate({ kode }, data, { new: true });
   if (updatedRumahTangga) {
     await aggregationService.calculateAggregationForRT(updatedRumahTangga.rt);
   }
   return updatedRumahTangga;
 };
 
-const deleteRumahTangga = async (id: string) => {
-  const rumahTangga = await RumahTangga.findByIdAndDelete(id);
+const deleteRumahTangga = async (kode: string) => {
+  const rumahTangga = await RumahTangga.findOneAndDelete({ kode });
   if (rumahTangga) {
     await aggregationService.calculateAggregationForRT(rumahTangga.rt);
   }
   return rumahTangga;
 };
 
-const getRumahTanggaById = async (id: string) => {
-  return await RumahTangga.findById(id);
+const getRumahTanggaByKode = async (kode: string) => {
+  return await RumahTangga.findOne({ kode });
 };
 
 const getAllRumahTangga = async () => {
@@ -37,6 +37,6 @@ export default {
   addRumahTangga,
   updateRumahTangga,
   deleteRumahTangga,
-  getRumahTanggaById,
+  getRumahTanggaByKode,
   getAllRumahTangga,
 };

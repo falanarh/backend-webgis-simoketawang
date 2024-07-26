@@ -1,33 +1,37 @@
-// src/services/rtService.ts
-import mongoose from "mongoose";
 import RumahTangga from "../models/rumahTanggaModel";
 import Rt from "../models/rtModel";
 
+// Mendapatkan semua RT
 const getAllRts = async () => {
   return await Rt.find();
 };
 
-const getRtById = async (id: string) => {
-  return await Rt.findById(id);
+// Mendapatkan RT berdasarkan kode
+const getRtByKode = async (kode: string) => {
+  return await Rt.findOne({ kode });
 };
 
+// Membuat RT baru
 const createRt = async (data: any) => {
   const newRt = new Rt(data);
   await newRt.save();
   return newRt;
 };
 
-const updateRt = async (id: string, data: any) => {
-  return await Rt.findByIdAndUpdate(id, data, { new: true });
+// Memperbarui RT berdasarkan kode
+const updateRt = async (kode: string, data: any) => {
+  return await Rt.findOneAndUpdate({ kode }, data, { new: true });
 };
 
-const deleteRt = async (id: string) => {
-  return await Rt.findByIdAndDelete(id);
+// Menghapus RT berdasarkan kode
+const deleteRt = async (kode: string) => {
+  return await Rt.findOneAndDelete({ kode });
 };
 
-const calculateAggregationForRT = async (rtId: mongoose.Types.ObjectId) => {
+// Menghitung agregasi untuk RT
+const calculateAggregationForRT = async (rtKode: string) => {
   const aggregation = await RumahTangga.aggregate([
-    { $match: { rt: rtId } },
+    { $match: { rt: rtKode } },
     {
       $group: {
         _id: "$rt",
@@ -40,7 +44,7 @@ const calculateAggregationForRT = async (rtId: mongoose.Types.ObjectId) => {
 
   if (aggregation.length > 0) {
     const stats = aggregation[0];
-    await Rt.findByIdAndUpdate(rtId, {
+    await Rt.findOneAndUpdate({ kode: rtKode }, {
       "geojson.properties.umkmStats": {
         householdCount: stats.householdCount,
         businessTypes: stats.businessTypes.filter(Boolean),
@@ -50,6 +54,7 @@ const calculateAggregationForRT = async (rtId: mongoose.Types.ObjectId) => {
   }
 };
 
+// Mendapatkan semua geoJSON dari RT
 const getAllRtGeoJSON = async () => {
   const rtList = await Rt.find().select("geojson");
   return rtList.map(rt => rt.geojson); // Ambil hanya atribut geojson
@@ -57,7 +62,7 @@ const getAllRtGeoJSON = async () => {
 
 export default {
   getAllRts,
-  getRtById,
+  getRtByKode, // Perubahan di sini
   createRt,
   updateRt,
   deleteRt,

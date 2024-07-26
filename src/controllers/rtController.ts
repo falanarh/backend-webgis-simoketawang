@@ -17,9 +17,9 @@ export const getRts = async (req: Request, res: Response) => {
   }
 };
 
-export const getRtById = async (req: Request, res: Response) => {
+export const getRtByKode = async (req: Request, res: Response) => {
   try {
-    const rt = await rtService.getRtById(req.params.id);
+    const rt = await rtService.getRtByKode(req.params.kode);
     if (!rt) {
       return res.status(404).json({
         statusCode: 404,
@@ -57,7 +57,7 @@ export const createRt = async (req: Request, res: Response) => {
 
 export const updateRt = async (req: Request, res: Response) => {
   try {
-    const updatedRt = await rtService.updateRt(req.params.id, req.body);
+    const updatedRt = await rtService.updateRt(req.params.kode, req.body);
     if (!updatedRt) {
       return res.status(404).json({
         statusCode: 404,
@@ -79,7 +79,7 @@ export const updateRt = async (req: Request, res: Response) => {
 
 export const deleteRt = async (req: Request, res: Response) => {
   try {
-    const deletedRt = await rtService.deleteRt(req.params.id);
+    const deletedRt = await rtService.deleteRt(req.params.kode);
     if (!deletedRt) {
       return res.status(404).json({
         statusCode: 404,
@@ -117,7 +117,7 @@ export const getAllRtGeoJSON = async (req: Request, res: Response) => {
 
 export default {
   getRts,
-  getRtById,
+  getRtByKode, // Perubahan di sini
   createRt,
   updateRt,
   deleteRt,

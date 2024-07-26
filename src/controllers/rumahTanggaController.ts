@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
 import rumahTanggaService from "../services/rumahTanggaService";
-import Rt from "../models/rtModel";
-import mongoose from "mongoose";
 
 const addRumahTangga = async (req: Request, res: Response) => {
   try {
@@ -22,7 +20,7 @@ const addRumahTangga = async (req: Request, res: Response) => {
 const updateRumahTangga = async (req: Request, res: Response) => {
   try {
     const updatedRumahTangga = await rumahTanggaService.updateRumahTangga(
-      req.params.id,
+      req.params.kode,
       req.body
     );
     if (!updatedRumahTangga) {
@@ -47,7 +45,7 @@ const updateRumahTangga = async (req: Request, res: Response) => {
 const deleteRumahTangga = async (req: Request, res: Response) => {
   try {
     const deletedRumahTangga = await rumahTanggaService.deleteRumahTangga(
-      req.params.id
+      req.params.kode
     );
     if (!deletedRumahTangga) {
       return res.status(404).json({
@@ -68,10 +66,10 @@ const deleteRumahTangga = async (req: Request, res: Response) => {
   }
 };
 
-const getRumahTanggaById = async (req: Request, res: Response) => {
+const getRumahTanggaByKode = async (req: Request, res: Response) => {
   try {
-    const rumahTangga = await rumahTanggaService.getRumahTanggaById(
-      req.params.id
+    const rumahTangga = await rumahTanggaService.getRumahTanggaByKode(
+      req.params.kode
     );
     if (!rumahTangga) {
       return res.status(404).json({
@@ -112,6 +110,6 @@ export default {
   addRumahTangga,
   updateRumahTangga,
   deleteRumahTangga,
-  getRumahTanggaById,
+  getRumahTanggaByKode, // Perubahan di sini
   getAllRumahTangga,
 };
