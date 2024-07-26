@@ -5,10 +5,10 @@ import authMiddleware from "../middleware/authMiddleware";
 const router = Router();
 
 router.get("/", authMiddleware, rtController.getRts);
-router.get("/:id", authMiddleware, rtController.getRtById);
+router.get("/:kode", authMiddleware, rtController.getRtByKode);
 router.post("/", authMiddleware, rtController.createRt);
-router.put("/:id", authMiddleware, rtController.updateRt);
-router.delete("/:id", authMiddleware, rtController.deleteRt);
+router.put("/:kode", authMiddleware, rtController.updateRt);
+router.delete("/:kode", authMiddleware, rtController.deleteRt);
 router.get("/all/geojson", authMiddleware, rtController.getAllRtGeoJSON);
 
 export default router;

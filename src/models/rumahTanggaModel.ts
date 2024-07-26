@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from "mongoose";
 interface IRumahTangga extends Document {
   kode: string; // Primary key
   namaKrt: string; // Name of the head of household
+  kodeRt: string;
   rt: string; // RT code
   rw: string; // RW code
   dusun: string; // Dusun information
@@ -17,6 +18,7 @@ const RumahTanggaSchema: Schema = new Schema({
   // Define `kode` as the primary key
   kode: { type: String, required: true, unique: true },
   namaKrt: { type: String, required: true },
+  kodeRt: { type: String, required: true },
   rt: { type: String, required: true },
   rw: { type: String, required: true },
   dusun: { type: String, required: true },

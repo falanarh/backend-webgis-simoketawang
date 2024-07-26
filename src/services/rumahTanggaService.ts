@@ -1,18 +1,23 @@
 import RumahTangga from '../models/rumahTanggaModel';
-import aggregationService from './rtService';
 import { IRumahTangga } from '../models/rumahTanggaModel';
+import Rt from '../models/rtModel'; 
+import { updateRtData } from './rtAndRutaService';
 
 const addRumahTangga = async (data: IRumahTangga) => {
+  const rt = await Rt.findOne({ kode: data.kodeRt });
+  if (!rt) {
+    throw new Error('RT tidak ditemukan');
+  }
   const newRumahTangga = new RumahTangga(data);
   await newRumahTangga.save();
-  await aggregationService.calculateAggregationForRT(newRumahTangga.rt);
+  await updateRtData(data.kodeRt);
   return newRumahTangga;
 };
 
-const updateRumahTangga = async (kode: string, data: Partial<IRumahTangga>) => {
+const updateRumahTangga = async (kode: string, data: IRumahTangga) => {
   const updatedRumahTangga = await RumahTangga.findOneAndUpdate({ kode }, data, { new: true });
   if (updatedRumahTangga) {
-    await aggregationService.calculateAggregationForRT(updatedRumahTangga.rt);
+    await updateRtData(data.kodeRt);
   }
   return updatedRumahTangga;
 };
@@ -20,7 +25,7 @@ const updateRumahTangga = async (kode: string, data: Partial<IRumahTangga>) => {
 const deleteRumahTangga = async (kode: string) => {
   const rumahTangga = await RumahTangga.findOneAndDelete({ kode });
   if (rumahTangga) {
-    await aggregationService.calculateAggregationForRT(rumahTangga.rt);
+    await updateRtData(rumahTangga.kodeRt);
   }
   return rumahTangga;
 };
