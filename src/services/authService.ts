@@ -26,7 +26,7 @@ const authenticateAdmin = async (username: string, password: string) => {
   }
 
   const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET!, {
-    expiresIn: '1h',
+    expiresIn: '6h',
   });
 
   return token;
