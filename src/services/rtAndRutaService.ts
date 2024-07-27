@@ -4,7 +4,7 @@ import Rt from "../models/rtModel";
 export const updateRtData = async (kodeRt: string) => {
     console.log(`Updating data for RT: ${kodeRt}`);
 
-    // Debug: log the current Rt data
+    // Debug: log the current RumahTangga data
     const rtData = await RumahTangga.find({ kodeRt: kodeRt });
     console.log(`Jumlah RumahTangga for RT ${kodeRt}:`, rtData.length);
 
@@ -171,33 +171,36 @@ export const updateRtData = async (kodeRt: string) => {
         { kode: kodeRt },
         {
             $set: {
-                "geojson.properties.jml_umkm": jml_umkm,
-                "geojson.properties.jml_umkm_tetap": jml_umkm_tetap,
-                "geojson.properties.jml_umkm_nontetap": jml_umkm_nontetap,
-                "geojson.properties.jml_umkm_kbli_a": jml_umkm_kbli_a,
-                "geojson.properties.jml_umkm_kbli_b": jml_umkm_kbli_b,
-                "geojson.properties.jml_umkm_kbli_c": jml_umkm_kbli_c,
-                "geojson.properties.jml_umkm_kbli_d": jml_umkm_kbli_d,
-                "geojson.properties.jml_umkm_kbli_e": jml_umkm_kbli_e,
-                "geojson.properties.jml_umkm_kbli_f": jml_umkm_kbli_f,
-                "geojson.properties.jml_umkm_kbli_g": jml_umkm_kbli_g,
-                "geojson.properties.jml_umkm_kbli_h": jml_umkm_kbli_h,
-                "geojson.properties.jml_umkm_kbli_i": jml_umkm_kbli_i,
-                "geojson.properties.jml_umkm_kbli_j": jml_umkm_kbli_j,
-                "geojson.properties.jml_umkm_kbli_k": jml_umkm_kbli_k,
-                "geojson.properties.jml_umkm_kbli_l": jml_umkm_kbli_l,
-                "geojson.properties.jml_umkm_kbli_m": jml_umkm_kbli_m,
-                "geojson.properties.jml_umkm_kbli_n": jml_umkm_kbli_n,
-                "geojson.properties.jml_umkm_kbli_o": jml_umkm_kbli_o,
-                "geojson.properties.jml_umkm_kbli_p": jml_umkm_kbli_p,
-                "geojson.properties.jml_umkm_kbli_q": jml_umkm_kbli_q,
-                "geojson.properties.jml_umkm_kbli_r": jml_umkm_kbli_r,
-                "geojson.properties.jml_umkm_kbli_s": jml_umkm_kbli_s,
-                "geojson.properties.jml_umkm_kbli_t": jml_umkm_kbli_t,
-                "geojson.properties.jml_umkm_kbli_u": jml_umkm_kbli_u,
+                "geojson.features.$[elem].properties.jml_umkm": jml_umkm,
+                "geojson.features.$[elem].properties.jml_umkm_tetap": jml_umkm_tetap,
+                "geojson.features.$[elem].properties.jml_umkm_nontetap": jml_umkm_nontetap,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_a": jml_umkm_kbli_a,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_b": jml_umkm_kbli_b,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_c": jml_umkm_kbli_c,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_d": jml_umkm_kbli_d,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_e": jml_umkm_kbli_e,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_f": jml_umkm_kbli_f,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_g": jml_umkm_kbli_g,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_h": jml_umkm_kbli_h,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_i": jml_umkm_kbli_i,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_j": jml_umkm_kbli_j,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_k": jml_umkm_kbli_k,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_l": jml_umkm_kbli_l,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_m": jml_umkm_kbli_m,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_n": jml_umkm_kbli_n,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_o": jml_umkm_kbli_o,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_p": jml_umkm_kbli_p,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_q": jml_umkm_kbli_q,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_r": jml_umkm_kbli_r,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_s": jml_umkm_kbli_s,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_t": jml_umkm_kbli_t,
+                "geojson.features.$[elem].properties.jml_umkm_kbli_u": jml_umkm_kbli_u,
             },
         },
-        { new: true }
+        {
+            arrayFilters: [{ "elem.properties.kode": kodeRt }],
+            new: true
+        }
     );
 
     if (!updatedRt) {

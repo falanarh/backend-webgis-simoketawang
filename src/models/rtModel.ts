@@ -1,16 +1,30 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-interface IGeoJSON extends Document {
+// Interface untuk CRS yang terbatas
+interface ICRS {
+  type: string;
+  properties: {
+    name: "urn:ogc:def:crs:OGC:1.3:CRS84";
+  };
+}
+
+// Interface untuk GeoJSONFeature
+interface IGeoJSONFeature extends Document {
   type: "Feature";
   geometry: {
-    type: string;
-    coordinates: number[][] | number[][][];
+    type:
+      | "Point"
+      | "LineString"
+      | "Polygon"
+      | "MultiPoint"
+      | "MultiLineString"
+      | "MultiPolygon";
+    coordinates: number[] | number[][] | number[][][]; // Menyesuaikan untuk semua tipe geometris GeoJSON
   };
   properties: {
     kode: string;
     rt: string;
     rw: string;
-    dusun: string;
     jml_ruta: number;
     jml_umkm: number;
     jml_umkm_tetap: number;
@@ -36,17 +50,39 @@ interface IGeoJSON extends Document {
     jml_umkm_kbli_s: number;
     jml_umkm_kbli_t: number;
     jml_umkm_kbli_u: number;
-    [key: string]: any; // For any other additional properties
+    [key: string]: any; // Untuk properti tambahan lainnya
   };
 }
 
+// Interface untuk GeoJSONFeatureCollection
+interface IGeoJSONFeatureCollection extends Document {
+  type: "FeatureCollection";
+  name: string;
+  crs: ICRS; // Menggunakan skema CRS yang terbatas
+  features: IGeoJSONFeature[];
+}
+
+// Interface untuk Rt
 interface IRt extends Document {
   kode: string;
   nama: string;
-  geojson: IGeoJSON;
+  geojson: IGeoJSONFeatureCollection;
 }
 
-const GeoJSONSchema: Schema = new Schema({
+// Skema untuk CRS yang terbatas
+const CRSSchema: Schema = new Schema({
+  type: { type: String, required: true },
+  properties: {
+    name: {
+      type: String,
+      enum: ["urn:ogc:def:crs:OGC:1.3:CRS84"],
+      required: true,
+    },
+  },
+});
+
+// Skema untuk GeoJSONFeature
+const GeoJSONFeatureSchema: Schema = new Schema({
   type: { type: String, enum: ["Feature"], required: true },
   geometry: {
     type: {
@@ -67,7 +103,6 @@ const GeoJSONSchema: Schema = new Schema({
     kode: { type: String, required: true },
     rt: { type: String, required: true },
     rw: { type: String, required: true },
-    dusun: { type: String, required: true },
     jml_ruta: { type: Number, required: true },
     jml_umkm: { type: Number, required: true },
     jml_umkm_tetap: { type: Number, required: true },
@@ -93,17 +128,26 @@ const GeoJSONSchema: Schema = new Schema({
     jml_umkm_kbli_s: { type: Number, required: true },
     jml_umkm_kbli_t: { type: Number, required: true },
     jml_umkm_kbli_u: { type: Number, required: true },
-    // Additional properties can be added here
+    // Properti tambahan bisa ditambahkan di sini
   },
 });
 
-const RtSchema: Schema = new Schema({
-  kode: { type: String, required: true, unique: true }, // Added kode as primary key
-  nama: { type: String, required: true }, // Added nama field
-  geojson: { type: GeoJSONSchema, required: true },
+// Skema untuk GeoJSONFeatureCollection
+const GeoJSONFeatureCollectionSchema: Schema = new Schema({
+  type: { type: String, enum: ["FeatureCollection"], required: true },
+  name: { type: String, required: true },
+  crs: { type: CRSSchema, required: true }, // Menggunakan skema CRS yang terbatas
+  features: { type: [GeoJSONFeatureSchema], required: true },
 });
 
-// Ensure unique index for kode
+// Skema untuk Rt
+const RtSchema: Schema = new Schema({
+  kode: { type: String, required: true, unique: true },
+  nama: { type: String, required: true },
+  geojson: { type: GeoJSONFeatureCollectionSchema, required: true },
+});
+
+// Pastikan indeks unik untuk kode
 RtSchema.index({ kode: 1 }, { unique: true });
 
 export default mongoose.model<IRt>("Rt", RtSchema);
