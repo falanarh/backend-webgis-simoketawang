@@ -251,14 +251,19 @@ const validateRtDataEdit = (dataReq: any) => {
   }
 };
 
-// Mendapatkan semua RT
+// Mendapatkan semua RT dengan hanya properties dari geojson
 const getAllRts = async () => {
-  return await Rt.find();
+  const rts = await Rt.find().select("geojson.properties"); // Pilih hanya properties dari geojson
+  return rts.map(rt => rt.geojson.properties); // Ambil hanya atribut properties dari geojson
 };
 
 // Mendapatkan RT berdasarkan kode
 const getRtByKode = async (kode: string) => {
-  return await Rt.findOne({ kode });
+  const rt = await Rt.findOne({ kode }).select("geojson.properties"); // Pilih hanya properties dari geojson
+  if (rt) {
+    return rt.geojson.properties; // Ambil hanya atribut properties dari geojson
+  }
+  return null; // Return null if no RT is found
 };
 
 // Membuat RT baru
