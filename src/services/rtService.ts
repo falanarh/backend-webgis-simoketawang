@@ -16,13 +16,23 @@ const validateRtDataCreate = (data: any) => {
   }
 
   // Validasi CRS
-  if (crs.type !== "name" || crs.properties.name !== "urn:ogc:def:crs:OGC:1.3:CRS84") {
-    throw new Error("Type CRS harus 'name' dan 'properties.name' harus 'urn:ogc:def:crs:OGC:1.3:CRS84'.");
+  if (
+    crs.type !== "name" ||
+    crs.properties.name !== "urn:ogc:def:crs:OGC:1.3:CRS84"
+  ) {
+    throw new Error(
+      "Type CRS harus 'name' dan 'properties.name' harus 'urn:ogc:def:crs:OGC:1.3:CRS84'."
+    );
   }
 
   // Validasi features
-  if (!Array.isArray(features) || !features.every((feature: any) => feature.type === "Feature")) {
-    throw new Error("Features harus berupa array dan setiap item harus bertipe 'Feature'.");
+  if (
+    !Array.isArray(features) ||
+    !features.every((feature: any) => feature.type === "Feature")
+  ) {
+    throw new Error(
+      "Features harus berupa array dan setiap item harus bertipe 'Feature'."
+    );
   }
 
   features.forEach((feature: any) => {
@@ -34,7 +44,10 @@ const validateRtDataCreate = (data: any) => {
     }
 
     // Validasi coordinates
-    if (!Array.isArray(geometry.coordinates) || !validateCoordinates(geometry.coordinates, geometry.type)) {
+    if (
+      !Array.isArray(geometry.coordinates) ||
+      !validateCoordinates(geometry.coordinates, geometry.type)
+    ) {
       throw new Error("Coordinates tidak valid.");
     }
 
@@ -59,13 +72,23 @@ const validateRtDataEdit = (dataReq: any) => {
   }
 
   // Validasi CRS
-  if (crs.type !== "name" || crs.properties.name !== "urn:ogc:def:crs:OGC:1.3:CRS84") {
-    throw new Error("Type CRS harus 'name' dan 'properties.name' harus 'urn:ogc:def:crs:OGC:1.3:CRS84'.");
+  if (
+    crs.type !== "name" ||
+    crs.properties.name !== "urn:ogc:def:crs:OGC:1.3:CRS84"
+  ) {
+    throw new Error(
+      "Type CRS harus 'name' dan 'properties.name' harus 'urn:ogc:def:crs:OGC:1.3:CRS84'."
+    );
   }
 
   // Validasi features
-  if (!Array.isArray(features) || !features.every((feature: any) => feature.type === "Feature")) {
-    throw new Error("Features harus berupa array dan setiap item harus bertipe 'Feature'.");
+  if (
+    !Array.isArray(features) ||
+    !features.every((feature: any) => feature.type === "Feature")
+  ) {
+    throw new Error(
+      "Features harus berupa array dan setiap item harus bertipe 'Feature'."
+    );
   }
 
   features.forEach((feature: any) => {
@@ -77,7 +100,10 @@ const validateRtDataEdit = (dataReq: any) => {
     }
 
     // Validasi coordinates
-    if (!Array.isArray(geometry.coordinates) || !validateCoordinates(geometry.coordinates, geometry.type)) {
+    if (
+      !Array.isArray(geometry.coordinates) ||
+      !validateCoordinates(geometry.coordinates, geometry.type)
+    ) {
       throw new Error("Coordinates tidak valid.");
     }
 
@@ -90,12 +116,16 @@ const validateRtDataEdit = (dataReq: any) => {
 const validateCoordinates = (coordinates: any, type: string) => {
   // Validasi untuk MultiPolygon
   if (type === "MultiPolygon") {
-    return coordinates.every((polygon: any[]) => 
-      Array.isArray(polygon) && 
-      polygon.every((ring: any[]) => 
-        Array.isArray(ring) && 
-        ring.every((coord: any[]) => Array.isArray(coord) && coord.length === 2)
-      )
+    return coordinates.every(
+      (polygon: any[]) =>
+        Array.isArray(polygon) &&
+        polygon.every(
+          (ring: any[]) =>
+            Array.isArray(ring) &&
+            ring.every(
+              (coord: any[]) => Array.isArray(coord) && coord.length === 2
+            )
+        )
     );
   }
   return false;
@@ -134,20 +164,35 @@ const validateProperties = (properties: any) => {
     jml_umkm_kbli_u,
   } = properties;
 
-  if (typeof kode !== "string" || typeof rt !== "string" || typeof rw !== "string") {
+  if (
+    typeof kode !== "string" ||
+    typeof rt !== "string" ||
+    typeof rw !== "string"
+  ) {
     throw new Error("Kode, rt, rw harus berupa string.");
   }
 
-  if (typeof jml_ruta !== "number" || typeof jml_umkm !== "number" || typeof jml_umkm_tetap !== "number" || typeof jml_umkm_nontetap !== "number") {
-    throw new Error("Jumlah ruta, UMKM, UMKM tetap, dan UMKM non-tetap harus berupa angka.");
+  if (
+    typeof jml_ruta !== "number" ||
+    typeof jml_umkm !== "number" ||
+    typeof jml_umkm_tetap !== "number" ||
+    typeof jml_umkm_nontetap !== "number"
+  ) {
+    throw new Error(
+      "Jumlah ruta, UMKM, UMKM tetap, dan UMKM non-tetap harus berupa angka."
+    );
   }
 
   if (jml_umkm > jml_ruta) {
-    throw new Error("Jumlah UMKM harus kurang dari atau sama dengan jumlah ruta.");
+    throw new Error(
+      "Jumlah UMKM harus kurang dari atau sama dengan jumlah ruta."
+    );
   }
 
   if (jml_umkm_tetap + jml_umkm_nontetap !== jml_umkm) {
-    throw new Error("Total jumlah UMKM tetap dan non-tetap harus sama dengan jumlah UMKM.");
+    throw new Error(
+      "Total jumlah UMKM tetap dan non-tetap harus sama dengan jumlah UMKM."
+    );
   }
 
   const totalKbli =
@@ -174,16 +219,25 @@ const validateProperties = (properties: any) => {
     jml_umkm_kbli_u;
 
   if (totalKbli !== jml_umkm) {
-    throw new Error("Total jumlah UMKM berdasarkan KBLI harus sama dengan jumlah UMKM.");
+    throw new Error(
+      "Total jumlah UMKM berdasarkan KBLI harus sama dengan jumlah UMKM."
+    );
   }
 };
 
-// Mendapatkan semua RT dengan hanya properties dari geojson
 const getAllRts = async () => {
-  const rts = await Rt.find().select("geojson"); // Ambil seluruh geojson
-  return rts.map(rt => rt.geojson.features[0].properties);
-};
+  const rts = await Rt.find().select("geojson"); // Fetch all geojson
+  const properties = rts.map((rt) => rt.geojson.features[0].properties);
 
+  // Sort the properties array based on the `rt` property
+  properties.sort((a, b) => {
+    const rtA = parseInt(a.rt, 10); // Convert rt to number
+    const rtB = parseInt(b.rt, 10); // Convert rt to number
+    return rtA - rtB; // Sort in ascending order
+  });
+
+  return properties;
+};
 
 // Mendapatkan RT berdasarkan kode
 const getRtByKode = async (kode: string) => {
@@ -198,7 +252,7 @@ const getRtByKode = async (kode: string) => {
 const createRt = async (data: any) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-  
+
   try {
     let createdRts = [];
 
@@ -254,7 +308,7 @@ const deleteRt = async (kode: string) => {
 // Mendapatkan semua geoJSON dari RT
 const getAllRtGeoJSON = async () => {
   const rtList = await Rt.find().select("geojson");
-  return rtList.map(rt => rt.geojson);
+  return rtList.map((rt) => rt.geojson);
 };
 
 export default {
