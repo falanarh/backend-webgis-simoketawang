@@ -57,59 +57,9 @@ const validateRtDataCreate = (data: any) => {
 };
 
 // Validasi data RT untuk pengeditan
-const validateRtDataEdit = (dataReq: any) => {
-  const geojson = dataReq.geojson;
-  const { type, name, crs, features } = geojson;
-
-  // Validasi type
-  if (type !== "FeatureCollection") {
-    throw new Error("Type harus 'FeatureCollection'.");
-  }
-
-  // Validasi name
-  if (typeof name !== "string") {
-    throw new Error("Name harus berupa string.");
-  }
-
-  // Validasi CRS
-  if (
-    crs.type !== "name" ||
-    crs.properties.name !== "urn:ogc:def:crs:OGC:1.3:CRS84"
-  ) {
-    throw new Error(
-      "Type CRS harus 'name' dan 'properties.name' harus 'urn:ogc:def:crs:OGC:1.3:CRS84'."
-    );
-  }
-
-  // Validasi features
-  if (
-    !Array.isArray(features) ||
-    !features.every((feature: any) => feature.type === "Feature")
-  ) {
-    throw new Error(
-      "Features harus berupa array dan setiap item harus bertipe 'Feature'."
-    );
-  }
-
-  features.forEach((feature: any) => {
-    const { geometry, properties } = feature;
-
-    // Validasi geometry
-    if (geometry.type !== "MultiPolygon") {
-      throw new Error("Tipe geometry harus 'MultiPolygon'.");
-    }
-
-    // Validasi coordinates
-    if (
-      !Array.isArray(geometry.coordinates) ||
-      !validateCoordinates(geometry.coordinates, geometry.type)
-    ) {
-      throw new Error("Coordinates tidak valid.");
-    }
-
-    // Validasi properties
-    validateProperties(properties);
-  });
+const validateRtDataEdit = (dataProps: any) => {
+  // Validasi properties
+  validateProperties(dataProps);
 };
 
 // Validasi koordinat berdasarkan tipe geometry
@@ -295,9 +245,18 @@ const createRt = async (data: any) => {
 };
 
 // Memperbarui RT berdasarkan kode
-const updateRt = async (kode: string, data: any) => {
-  validateRtDataEdit(data);
-  return await Rt.findOneAndUpdate({ kode }, { geojson: data }, { new: true });
+const updateRt = async (kode: string, properties: any) => {
+  validateRtDataEdit(properties);
+
+  // Find the RT and update its properties
+  const rt = await Rt.findOne({ kode });
+  if (rt) {
+    // Assuming only one feature, update its properties
+    rt.geojson.features[0].properties = properties;
+    return await rt.save();
+  }
+
+  throw new Error("RT dengan kode tersebut tidak ditemukan.");
 };
 
 // Menghapus RT berdasarkan kode
