@@ -9,6 +9,6 @@ router.get("/:kode", authMiddleware, rtController.getRtByKode);
 router.post("/", authMiddleware, rtController.createRt);
 router.put("/:kode", authMiddleware, rtController.updateRt);
 router.delete("/:kode", authMiddleware, rtController.deleteRt);
-router.get("/all/geojson", authMiddleware, rtController.getAllRtGeoJSON);
+router.get("/all/geojson", rtController.getAllRtGeoJSON);
 
 export default router;

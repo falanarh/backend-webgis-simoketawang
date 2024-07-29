@@ -264,10 +264,17 @@ const deleteRt = async (kode: string) => {
   return await Rt.findOneAndDelete({ kode });
 };
 
-// Mendapatkan semua geoJSON dari RT
+// Fungsi untuk mengurutkan array GeoJSON berdasarkan properti 'name'
+function sortGeoJsonByKode(geoJsonArray: any[]) {
+  return geoJsonArray.sort((a, b) => a.features[0].properties.kode.localeCompare(b.features[0].properties.kode));
+}
+
+// Mengambil semua geoJSON dari RT
 const getAllRtGeoJSON = async () => {
   const rtList = await Rt.find().select("geojson");
-  return rtList.map((rt) => rt.geojson);
+  const geoJsonArray = rtList.map((rt) => rt.geojson);
+  
+  return sortGeoJsonByKode(geoJsonArray);
 };
 
 export default {
