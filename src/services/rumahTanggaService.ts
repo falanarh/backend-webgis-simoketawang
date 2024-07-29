@@ -1,7 +1,7 @@
 import RumahTangga from '../models/rumahTanggaModel';
 import { IRumahTangga } from '../models/rumahTanggaModel';
 import Rt from '../models/rtModel'; 
-import { updateAllRtData } from './rtAndRutaService';
+import { updateRtAggregates } from './rtAndRutaService';
 
 const VALID_KLASIFIKASI_KBLI = [
   "kbli_a", "kbli_b", "kbli_c", "kbli_d", "kbli_e",
@@ -32,7 +32,7 @@ const addRumahTangga = async (data: IRumahTangga) => {
   
   const newRumahTangga = new RumahTangga(data);
   await newRumahTangga.save();
-  await updateAllRtData();
+  await updateRtAggregates();
   
   return newRumahTangga;
 };
@@ -42,7 +42,7 @@ const updateRumahTangga = async (kode: string, data: IRumahTangga) => {
 
   const updatedRumahTangga = await RumahTangga.findOneAndUpdate({ kode }, data, { new: true });
   if (updatedRumahTangga) {
-    await updateAllRtData();
+    await updateRtAggregates();
   } else {
     throw new Error('Rumah Tangga dengan kode tersebut tidak ditemukan. Pastikan kode yang dimasukkan benar.');
   }
@@ -53,7 +53,7 @@ const updateRumahTangga = async (kode: string, data: IRumahTangga) => {
 const deleteRumahTangga = async (kode: string) => {
   const rumahTangga = await RumahTangga.findOneAndDelete({ kode });
   if (rumahTangga) {
-    await updateAllRtData();
+    await updateRtAggregates();
   } else {
     throw new Error('Rumah Tangga dengan kode tersebut tidak ditemukan. Pastikan kode yang dimasukkan benar.');
   }
