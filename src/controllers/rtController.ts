@@ -115,6 +115,22 @@ export const getAllRtGeoJSON = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllAgregateProperties = async (req: Request, res: Response) => {
+  try {
+    const aggregateProperties = await rtService.calculateTotals();
+    res.status(200).json({
+      statusCode: 200,
+      message: "Aggregate properties fetched successfully",
+      data: aggregateProperties,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      statusCode: 500,
+      message: error.message,
+    });
+  }
+};
+
 export default {
   getRts,
   getRtByKode, // Perubahan di sini
@@ -122,4 +138,5 @@ export default {
   updateRt,
   deleteRt,
   getAllRtGeoJSON,
+  getAllAgregateProperties,
 };

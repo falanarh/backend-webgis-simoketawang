@@ -277,6 +277,76 @@ const getAllRtGeoJSON = async () => {
   return sortGeoJsonByKode(geoJsonArray);
 };
 
+// Menghitung total jumlah ruta, UMKM, dan UMKM berdasarkan KBLI dari seluruh RT
+const calculateTotals = async () => {
+  // Ambil semua RT
+  const rts = await Rt.find().select("geojson");
+
+  // Inisialisasi total dengan nilai awal 0
+  const totals = {
+    jml_ruta: 0,
+    jml_umkm: 0,
+    jml_umkm_tetap: 0,
+    jml_umkm_nontetap: 0,
+    jml_umkm_kbli_a: 0,
+    jml_umkm_kbli_b: 0,
+    jml_umkm_kbli_c: 0,
+    jml_umkm_kbli_d: 0,
+    jml_umkm_kbli_e: 0,
+    jml_umkm_kbli_f: 0,
+    jml_umkm_kbli_g: 0,
+    jml_umkm_kbli_h: 0,
+    jml_umkm_kbli_i: 0,
+    jml_umkm_kbli_j: 0,
+    jml_umkm_kbli_k: 0,
+    jml_umkm_kbli_l: 0,
+    jml_umkm_kbli_m: 0,
+    jml_umkm_kbli_n: 0,
+    jml_umkm_kbli_o: 0,
+    jml_umkm_kbli_p: 0,
+    jml_umkm_kbli_q: 0,
+    jml_umkm_kbli_r: 0,
+    jml_umkm_kbli_s: 0,
+    jml_umkm_kbli_t: 0,
+    jml_umkm_kbli_u: 0,
+  };
+
+  // Iterasi setiap RT dan akumulasi nilai
+  rts.forEach(rt => {
+    const { features } = rt.geojson;
+    if (features && features.length > 0) {
+      const { properties } = features[0];
+      totals.jml_ruta += properties.jml_ruta || 0;
+      totals.jml_umkm += properties.jml_umkm || 0;
+      totals.jml_umkm_tetap += properties.jml_umkm_tetap || 0;
+      totals.jml_umkm_nontetap += properties.jml_umkm_nontetap || 0;
+      totals.jml_umkm_kbli_a += properties.jml_umkm_kbli_a || 0;
+      totals.jml_umkm_kbli_b += properties.jml_umkm_kbli_b || 0;
+      totals.jml_umkm_kbli_c += properties.jml_umkm_kbli_c || 0;
+      totals.jml_umkm_kbli_d += properties.jml_umkm_kbli_d || 0;
+      totals.jml_umkm_kbli_e += properties.jml_umkm_kbli_e || 0;
+      totals.jml_umkm_kbli_f += properties.jml_umkm_kbli_f || 0;
+      totals.jml_umkm_kbli_g += properties.jml_umkm_kbli_g || 0;
+      totals.jml_umkm_kbli_h += properties.jml_umkm_kbli_h || 0;
+      totals.jml_umkm_kbli_i += properties.jml_umkm_kbli_i || 0;
+      totals.jml_umkm_kbli_j += properties.jml_umkm_kbli_j || 0;
+      totals.jml_umkm_kbli_k += properties.jml_umkm_kbli_k || 0;
+      totals.jml_umkm_kbli_l += properties.jml_umkm_kbli_l || 0;
+      totals.jml_umkm_kbli_m += properties.jml_umkm_kbli_m || 0;
+      totals.jml_umkm_kbli_n += properties.jml_umkm_kbli_n || 0;
+      totals.jml_umkm_kbli_o += properties.jml_umkm_kbli_o || 0;
+      totals.jml_umkm_kbli_p += properties.jml_umkm_kbli_p || 0;
+      totals.jml_umkm_kbli_q += properties.jml_umkm_kbli_q || 0;
+      totals.jml_umkm_kbli_r += properties.jml_umkm_kbli_r || 0;
+      totals.jml_umkm_kbli_s += properties.jml_umkm_kbli_s || 0;
+      totals.jml_umkm_kbli_t += properties.jml_umkm_kbli_t || 0;
+      totals.jml_umkm_kbli_u += properties.jml_umkm_kbli_u || 0;
+    }
+  });
+
+  return totals;
+};
+
 export default {
   getAllRts,
   getRtByKode,
@@ -284,4 +354,5 @@ export default {
   updateRt,
   deleteRt,
   getAllRtGeoJSON,
+  calculateTotals, 
 };
