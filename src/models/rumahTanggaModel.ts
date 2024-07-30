@@ -6,7 +6,7 @@ interface IRumahTangga extends Document {
   kodeRt: string;
   rt: string; // RT code
   rw: string; // RW code
-  // dusun: string; // Dusun information
+  dusun: string; // Dusun information
   klasifikasiKbli: string; // Classification of business
   jenisUmkm: string; // Type of UMKM
   latitude: string; // Latitude
@@ -21,7 +21,7 @@ const RumahTanggaSchema: Schema = new Schema({
   kodeRt: { type: String, required: true },
   rt: { type: String, required: true },
   rw: { type: String, required: true },
-  // dusun: { type: String, required: true },
+  dusun: { type: String, required: true },
   klasifikasiKbli: { type: String, required: true },
   jenisUmkm: { type: String, required: true },
   latitude: { type: String, required: true },

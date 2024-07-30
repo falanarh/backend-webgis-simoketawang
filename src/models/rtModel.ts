@@ -25,6 +25,8 @@ interface IGeoJSONFeature extends Document {
     kode: string;
     rt: string;
     rw: string;
+    dusun: string;
+    label: string;
     jml_ruta: number;
     jml_umkm: number;
     jml_umkm_tetap: number;
@@ -103,6 +105,8 @@ const GeoJSONFeatureSchema: Schema = new Schema({
     kode: { type: String, required: true },
     rt: { type: String, required: true },
     rw: { type: String, required: true },
+    dusun: { type: String, required: true },
+    label : { type: String, required: true },
     jml_ruta: { type: Number, required: true },
     jml_umkm: { type: Number, required: true },
     jml_umkm_tetap: { type: Number, required: true },
