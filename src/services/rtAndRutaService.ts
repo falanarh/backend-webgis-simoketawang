@@ -22,7 +22,8 @@ export const updateRtAggregates = async () => {
                     },
                     kbliCounts: {
                         $push: "$klasifikasiKbli"
-                    }
+                    },
+                    totalPendapatan: { $sum: "$pendapatanSebulanTerakhir" }
                 }
             },
             {
@@ -234,7 +235,8 @@ export const updateRtAggregates = async () => {
                         "geojson.features.$[elem].properties.jml_umkm_kbli_r": rtData.kbliAggregates.r,
                         "geojson.features.$[elem].properties.jml_umkm_kbli_s": rtData.kbliAggregates.s,
                         "geojson.features.$[elem].properties.jml_umkm_kbli_t": rtData.kbliAggregates.t,
-                        "geojson.features.$[elem].properties.jml_umkm_kbli_u": rtData.kbliAggregates.u
+                        "geojson.features.$[elem].properties.jml_umkm_kbli_u": rtData.kbliAggregates.u,
+                        "geojson.features.$[elem].properties.total_pendapatan_sebulan_terakhir": rtData.totalPendapatan
                     }
                 },
                 { arrayFilters: [{ "elem.properties.kode": rtData._id }], new: true }
@@ -272,7 +274,8 @@ export const updateRtAggregates = async () => {
                             "geojson.features.$[elem].properties.jml_umkm_kbli_r": 0,
                             "geojson.features.$[elem].properties.jml_umkm_kbli_s": 0,
                             "geojson.features.$[elem].properties.jml_umkm_kbli_t": 0,
-                            "geojson.features.$[elem].properties.jml_umkm_kbli_u": 0
+                            "geojson.features.$[elem].properties.jml_umkm_kbli_u": 0,
+                            "geojson.features.$[elem].properties.total_pendapatan_sebulan_terakhir": 0
                         }
                     },
                     { arrayFilters: [{ "elem.properties.kode": rt.kode }], new: true }

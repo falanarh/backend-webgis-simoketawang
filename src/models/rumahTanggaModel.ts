@@ -9,6 +9,7 @@ interface IRumahTangga extends Document {
   dusun: string; // Dusun information
   klasifikasiKbli: string; // Classification of business
   jenisUmkm: string; // Type of UMKM
+  pendapatanSebulanTerakhir: number;
   latitude: string; // Latitude
   longitude: string; // Longitude
 }
@@ -24,6 +25,7 @@ const RumahTanggaSchema: Schema = new Schema({
   dusun: { type: String, required: true },
   klasifikasiKbli: { type: String, required: true },
   jenisUmkm: { type: String, required: true },
+  pendapatanSebulanTerakhir: { type: Number, required: true },
   latitude: { type: String, required: true },
   longitude: { type: String, required: true },
 });
