@@ -44,7 +44,150 @@ export const updateRtAggregates = async () => {
                                 }
                             }
                         },
-                        // ... Tambahkan semua jenis kbli lainnya
+                        c: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_c"] }
+                                }
+                            }
+                        },
+                        d: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_d"] }
+                                }
+                            }
+                        },
+                        e: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_e"] }
+                                }
+                            }
+                        },
+                        f: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_f"] }
+                                }
+                            }
+                        },
+                        g: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_g"] }
+                                }
+                            }
+                        },
+                        h: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_h"] }
+                                }
+                            }
+                        },
+                        i: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_i"] }
+                                }
+                            }
+                        },
+                        j: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_j"] }
+                                }
+                            }
+                        },
+                        k: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_k"] }
+                                }
+                            }
+                        },
+                        l: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_l"] }
+                                }
+                            }
+                        },
+                        m: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_m"] }
+                                }
+                            }
+                        },
+                        n: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_n"] }
+                                }
+                            }
+                        },
+                        o: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_o"] }
+                                }
+                            }
+                        },
+                        p: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_p"] }
+                                }
+                            }
+                        },
+                        q: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_q"] }
+                                }
+                            }
+                        },
+                        r: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_r"] }
+                                }
+                            }
+                        },
+                        s: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_s"] }
+                                }
+                            }
+                        },
+                        t: {
+                            $size: {
+                                $filter: {
+                                    input: "$kbliCounts",
+                                    cond: { $eq: ["$$this", "kbli_t"] }
+                                }
+                            }
+                        },
                         u: {
                             $size: {
                                 $filter: {

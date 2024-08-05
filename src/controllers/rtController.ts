@@ -138,5 +138,5 @@ export default {
   updateRt,
   deleteRt,
   getAllRtGeoJSON,
-  getAllAgregateProperties,
+    getAllAgregateProperties,
 };
