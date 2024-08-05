@@ -197,6 +197,13 @@ export const updateRtAggregates = async () => {
                                 }
                             }
                         }
+                    },
+                    rata2Pendapatan: {
+                        $cond: [
+                            { $gt: ["$totalUmkm", 0] },
+                            { $divide: ["$totalPendapatan", "$totalUmkm"] },
+                            0
+                        ]
                     }
                 }
             }
@@ -236,7 +243,8 @@ export const updateRtAggregates = async () => {
                         "geojson.features.$[elem].properties.jml_umkm_kbli_s": rtData.kbliAggregates.s,
                         "geojson.features.$[elem].properties.jml_umkm_kbli_t": rtData.kbliAggregates.t,
                         "geojson.features.$[elem].properties.jml_umkm_kbli_u": rtData.kbliAggregates.u,
-                        "geojson.features.$[elem].properties.total_pendapatan_sebulan_terakhir": rtData.totalPendapatan
+                        "geojson.features.$[elem].properties.total_pendapatan_sebulan_terakhir": rtData.totalPendapatan,
+                        "geojson.features.$[elem].properties.rata2_pendapatan_sebulan_terakhir": rtData.rata2Pendapatan
                     }
                 },
                 { arrayFilters: [{ "elem.properties.kode": rtData._id }], new: true }
@@ -275,7 +283,8 @@ export const updateRtAggregates = async () => {
                             "geojson.features.$[elem].properties.jml_umkm_kbli_s": 0,
                             "geojson.features.$[elem].properties.jml_umkm_kbli_t": 0,
                             "geojson.features.$[elem].properties.jml_umkm_kbli_u": 0,
-                            "geojson.features.$[elem].properties.total_pendapatan_sebulan_terakhir": 0
+                            "geojson.features.$[elem].properties.total_pendapatan_sebulan_terakhir": 0,
+                            "geojson.features.$[elem].properties.rata2_pendapatan_sebulan_terakhir": 0
                         }
                     },
                     { arrayFilters: [{ "elem.properties.kode": rt.kode }], new: true }

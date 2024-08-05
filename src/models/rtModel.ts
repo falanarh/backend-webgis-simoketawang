@@ -53,6 +53,7 @@ interface IGeoJSONFeature extends Document {
     jml_umkm_kbli_t: number;
     jml_umkm_kbli_u: number;
     total_pendapatan_sebulan_terakhir: number;
+    rata2_pendapatan_sebulan_terakhir: number;
     [key: string]: any; // Untuk properti tambahan lainnya
   };
 }
@@ -134,6 +135,7 @@ const GeoJSONFeatureSchema: Schema = new Schema({
     jml_umkm_kbli_t: { type: Number, required: true },
     jml_umkm_kbli_u: { type: Number, required: true },
     total_pendapatan_sebulan_terakhir: { type: Number, required: true },
+    rata2_pendapatan_sebulan_terakhir: { type: Number, required: true },
     // Properti tambahan bisa ditambahkan di sini
   },
 });
