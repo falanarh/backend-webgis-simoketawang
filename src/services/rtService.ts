@@ -309,6 +309,7 @@ const calculateTotals = async () => {
     jml_umkm_kbli_s: 0,
     jml_umkm_kbli_t: 0,
     jml_umkm_kbli_u: 0,
+    total_pendapatan_sebulan_terakhir: 0,
   };
 
   // Iterasi setiap RT dan akumulasi nilai
@@ -341,6 +342,7 @@ const calculateTotals = async () => {
       totals.jml_umkm_kbli_s += properties.jml_umkm_kbli_s || 0;
       totals.jml_umkm_kbli_t += properties.jml_umkm_kbli_t || 0;
       totals.jml_umkm_kbli_u += properties.jml_umkm_kbli_u || 0;
+      totals.total_pendapatan_sebulan_terakhir += properties.total_pendapatan_sebulan_terakhir || 0;
     }
   });
 
