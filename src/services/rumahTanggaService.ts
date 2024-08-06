@@ -22,18 +22,20 @@ const validateRumahTanggaData = (data: IRumahTangga) => {
   }
 };
 
-const addRumahTangga = async (data: IRumahTangga) => {
-  validateRumahTanggaData(data);
+const addRumahTangga = async (data: IRumahTangga | IRumahTangga[]) => {
+  const dataArray = Array.isArray(data) ? data : [data];
 
-  const rt = await Rt.findOne({ kode: data.kodeRt });
-  if (!rt) {
-    throw new Error('RT dengan kode tersebut tidak ditemukan. Pastikan kode RT yang dimasukkan benar.');
+  for (const item of dataArray) {
+    validateRumahTanggaData(item);
+    const rt = await Rt.findOne({ kode: item.kodeRt });
+    if (!rt) {
+      throw new Error(`RT dengan kode ${item.kodeRt} tidak ditemukan. Pastikan kode RT yang dimasukkan benar.`);
+    }
   }
-  
-  const newRumahTangga = new RumahTangga(data);
-  await newRumahTangga.save();
+
+  const newRumahTangga = await RumahTangga.insertMany(dataArray);
   await updateRtAggregates();
-  
+
   return newRumahTangga;
 };
 

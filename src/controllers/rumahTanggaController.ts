@@ -3,7 +3,8 @@ import rumahTanggaService from "../services/rumahTanggaService";
 
 const addRumahTangga = async (req: Request, res: Response) => {
   try {
-    const newRumahTangga = await rumahTanggaService.addRumahTangga(req.body);
+    const data = Array.isArray(req.body) ? req.body : [req.body];
+    const newRumahTangga = await rumahTanggaService.addRumahTangga(data);
     res.status(201).json({
       statusCode: 201,
       message: "RumahTangga created successfully",
