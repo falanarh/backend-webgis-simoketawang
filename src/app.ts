@@ -17,11 +17,17 @@ connectDB();
 
 app.use(morgan("dev"));
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-  })
-);
+// app.use(
+//   cors({
+//     origin: "http://localhost:5173",
+//   })
+// );
+
+app.use(cors({
+  origin: 'https://desa-cantik-sda.vercel.app', // Ganti dengan domain Anda
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Metode yang diizinkan
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 // app.use(bodyParser.json());
