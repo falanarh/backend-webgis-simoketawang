@@ -29,8 +29,6 @@ interface IGeoJSONFeature extends Document {
     label: string;
     jml_ruta: number;
     jml_umkm: number;
-    jml_umkm_tetap: number;
-    jml_umkm_nontetap: number;
     jml_umkm_kbli_a: number;
     jml_umkm_kbli_b: number;
     jml_umkm_kbli_c: number;
@@ -52,8 +50,17 @@ interface IGeoJSONFeature extends Document {
     jml_umkm_kbli_s: number;
     jml_umkm_kbli_t: number;
     jml_umkm_kbli_u: number;
-    total_pendapatan_sebulan_terakhir: number;
-    rata2_pendapatan_sebulan_terakhir: number;
+    jml_umkm_lokasi_bangunan_khusus_usaha: number;
+    jml_umkm_lokasi_bangunan_campuran: number;
+    jml_umkm_lokasi_kaki_lima: number;
+    jml_umkm_lokasi_keliling: number;
+    jml_umkm_lokasi_dalam_bangunan_tempat_tinggal_online: number;
+    jml_umkm_bentuk_pt_persero_sejenisnya: number;
+    jml_umkm_bentuk_ijin_desa_ijin_lainnya: number;
+    jml_umkm_bentuk_tidak_berbadan_hukum: number;
+    jml_umkm_skala_usaha_mikro: number;
+    jml_umkm_skala_usaha_kecil: number;
+    jml_umkm_skala_usaha_menengah: number;
     [key: string]: any; // Untuk properti tambahan lainnya
   };
 }
@@ -108,11 +115,9 @@ const GeoJSONFeatureSchema: Schema = new Schema({
     rt: { type: String, required: true },
     rw: { type: String, required: true },
     dusun: { type: String, required: true },
-    label : { type: String, required: true },
+    label: { type: String, required: true },
     jml_ruta: { type: Number, required: true },
     jml_umkm: { type: Number, required: true },
-    jml_umkm_tetap: { type: Number, required: true },
-    jml_umkm_nontetap: { type: Number, required: true },
     jml_umkm_kbli_a: { type: Number, required: true },
     jml_umkm_kbli_b: { type: Number, required: true },
     jml_umkm_kbli_c: { type: Number, required: true },
@@ -134,9 +139,20 @@ const GeoJSONFeatureSchema: Schema = new Schema({
     jml_umkm_kbli_s: { type: Number, required: true },
     jml_umkm_kbli_t: { type: Number, required: true },
     jml_umkm_kbli_u: { type: Number, required: true },
-    total_pendapatan_sebulan_terakhir: { type: Number, required: true },
-    rata2_pendapatan_sebulan_terakhir: { type: Number, required: true },
-    // Properti tambahan bisa ditambahkan di sini
+    jml_umkm_lokasi_bangunan_khusus_usaha: { type: Number, required: true },
+    jml_umkm_lokasi_bangunan_campuran: { type: Number, required: true },
+    jml_umkm_lokasi_kaki_lima: { type: Number, required: true },
+    jml_umkm_lokasi_keliling: { type: Number, required: true },
+    jml_umkm_lokasi_didalam_bangunan_tempat_tinggal_online: {
+      type: Number,
+      required: true,
+    },
+    jml_umkm_bentuk_pt_persero_sejenisnya: { type: Number, required: true },
+    jml_umkm_bentuk_ijin_desa_ijin_lainnya: { type: Number, required: true },
+    jml_umkm_bentuk_tidak_berbadan_hukum: { type: Number, required: true },
+    jml_umkm_skala_usaha_mikro: { type: Number, required: true },
+    jml_umkm_skala_usaha_kecil: { type: Number, required: true },
+    jml_umkm_skala_usaha_menengah: { type: Number, required: true },
   },
 });
 

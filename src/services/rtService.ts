@@ -89,8 +89,6 @@ const validateProperties = (properties: any) => {
     rw,
     jml_ruta,
     jml_umkm,
-    jml_umkm_tetap,
-    jml_umkm_nontetap,
     jml_umkm_kbli_a,
     jml_umkm_kbli_b,
     jml_umkm_kbli_c,
@@ -112,6 +110,17 @@ const validateProperties = (properties: any) => {
     jml_umkm_kbli_s,
     jml_umkm_kbli_t,
     jml_umkm_kbli_u,
+    jml_umkm_lokasi_bangunan_khusus_usaha,
+    jml_umkm_lokasi_bangunan_campuran,
+    jml_umkm_lokasi_kaki_lima,
+    jml_umkm_lokasi_keliling,
+    jml_umkm_lokasi_didalam_bangunan_tempat_tinggal_online,
+    jml_umkm_bentuk_pt_persero_sejenisnya,
+    jml_umkm_bentuk_ijin_desa_ijin_lainnya,
+    jml_umkm_bentuk_tidak_berbadan_hukum,
+    jml_umkm_skala_usaha_mikro,
+    jml_umkm_skala_usaha_kecil,
+    jml_umkm_skala_usaha_menengah,
   } = properties;
 
   if (
@@ -122,12 +131,7 @@ const validateProperties = (properties: any) => {
     throw new Error("Kode, rt, rw harus berupa string.");
   }
 
-  if (
-    typeof jml_ruta !== "number" ||
-    typeof jml_umkm !== "number" ||
-    typeof jml_umkm_tetap !== "number" ||
-    typeof jml_umkm_nontetap !== "number"
-  ) {
+  if (typeof jml_ruta !== "number" || typeof jml_umkm !== "number") {
     throw new Error(
       "Jumlah ruta, UMKM, UMKM tetap, dan UMKM non-tetap harus berupa angka."
     );
@@ -136,12 +140,6 @@ const validateProperties = (properties: any) => {
   if (jml_umkm > jml_ruta) {
     throw new Error(
       "Jumlah UMKM harus kurang dari atau sama dengan jumlah ruta."
-    );
-  }
-
-  if (jml_umkm_tetap + jml_umkm_nontetap !== jml_umkm) {
-    throw new Error(
-      "Total jumlah UMKM tetap dan non-tetap harus sama dengan jumlah UMKM."
     );
   }
 
@@ -171,6 +169,38 @@ const validateProperties = (properties: any) => {
   if (totalKbli !== jml_umkm) {
     throw new Error(
       "Total jumlah UMKM berdasarkan KBLI harus sama dengan jumlah UMKM."
+    );
+  }
+
+  const totalUmkmLokasi =
+    jml_umkm_lokasi_bangunan_khusus_usaha +
+    jml_umkm_lokasi_bangunan_campuran +
+    jml_umkm_lokasi_kaki_lima +
+    jml_umkm_lokasi_keliling +
+    jml_umkm_lokasi_didalam_bangunan_tempat_tinggal_online;
+  if (totalUmkmLokasi !== jml_umkm) {
+    throw new Error(
+      "Total UMKM berdasarkan lokasi harus sama dengan jumlah UMKM."
+    );
+  }
+
+  const totalUmkmBentuk =
+    jml_umkm_bentuk_pt_persero_sejenisnya +
+    jml_umkm_bentuk_ijin_desa_ijin_lainnya +
+    jml_umkm_bentuk_tidak_berbadan_hukum;
+  if (totalUmkmBentuk !== jml_umkm) {
+    throw new Error(
+      "Total UMKM berdasarkan bentuk harus sama dengan jumlah UMKM."
+    );
+  }
+
+  const totalUmkmSkala =
+    jml_umkm_skala_usaha_mikro +
+    jml_umkm_skala_usaha_kecil +
+    jml_umkm_skala_usaha_menengah;
+  if (totalUmkmSkala !== jml_umkm) {
+    throw new Error(
+      "Total UMKM berdasarkan skala harus sama dengan jumlah UMKM."
     );
   }
 };
@@ -266,14 +296,16 @@ const deleteRt = async (kode: string) => {
 
 // Fungsi untuk mengurutkan array GeoJSON berdasarkan properti 'name'
 function sortGeoJsonByKode(geoJsonArray: any[]) {
-  return geoJsonArray.sort((a, b) => a.features[0].properties.kode.localeCompare(b.features[0].properties.kode));
+  return geoJsonArray.sort((a, b) =>
+    a.features[0].properties.kode.localeCompare(b.features[0].properties.kode)
+  );
 }
 
 // Mengambil semua geoJSON dari RT
 const getAllRtGeoJSON = async () => {
   const rtList = await Rt.find().select("geojson");
   const geoJsonArray = rtList.map((rt) => rt.geojson);
-  
+
   return sortGeoJsonByKode(geoJsonArray);
 };
 
@@ -286,8 +318,6 @@ const calculateTotals = async () => {
   const totals = {
     jml_ruta: 0,
     jml_umkm: 0,
-    jml_umkm_tetap: 0,
-    jml_umkm_nontetap: 0,
     jml_umkm_kbli_a: 0,
     jml_umkm_kbli_b: 0,
     jml_umkm_kbli_c: 0,
@@ -309,18 +339,26 @@ const calculateTotals = async () => {
     jml_umkm_kbli_s: 0,
     jml_umkm_kbli_t: 0,
     jml_umkm_kbli_u: 0,
-    total_pendapatan_sebulan_terakhir: 0,
+    jml_umkm_lokasi_bangunan_khusus_usaha: 0,
+    jml_umkm_lokasi_bangunan_campuran: 0,
+    jml_umkm_lokasi_kaki_lima: 0,
+    jml_umkm_lokasi_keliling: 0,
+    jml_umkm_lokasi_dalam_bangunan_tempat_tinggal_online: 0,
+    jml_umkm_bentuk_pt_persero_sejenisnya: 0,
+    jml_umkm_bentuk_ijin_desa_ijin_lainnya: 0,
+    jml_umkm_bentuk_tidak_berbadan_hukum: 0,
+    jml_umkm_skala_usaha_mikro: 0,
+    jml_umkm_skala_usaha_kecil: 0,
+    jml_umkm_skala_usaha_menengah: 0,
   };
 
   // Iterasi setiap RT dan akumulasi nilai
-  rts.forEach(rt => {
+  rts.forEach((rt) => {
     const { features } = rt.geojson;
     if (features && features.length > 0) {
       const { properties } = features[0];
       totals.jml_ruta += properties.jml_ruta || 0;
       totals.jml_umkm += properties.jml_umkm || 0;
-      totals.jml_umkm_tetap += properties.jml_umkm_tetap || 0;
-      totals.jml_umkm_nontetap += properties.jml_umkm_nontetap || 0;
       totals.jml_umkm_kbli_a += properties.jml_umkm_kbli_a || 0;
       totals.jml_umkm_kbli_b += properties.jml_umkm_kbli_b || 0;
       totals.jml_umkm_kbli_c += properties.jml_umkm_kbli_c || 0;
@@ -342,7 +380,17 @@ const calculateTotals = async () => {
       totals.jml_umkm_kbli_s += properties.jml_umkm_kbli_s || 0;
       totals.jml_umkm_kbli_t += properties.jml_umkm_kbli_t || 0;
       totals.jml_umkm_kbli_u += properties.jml_umkm_kbli_u || 0;
-      totals.total_pendapatan_sebulan_terakhir += properties.total_pendapatan_sebulan_terakhir || 0;
+      totals.jml_umkm_lokasi_bangunan_khusus_usaha += properties.jml_umkm_lokasi_bangunan_khusus_usaha || 0;
+      totals.jml_umkm_lokasi_bangunan_campuran += properties.jml_umkm_lokasi_bangunan_campuran || 0;
+      totals.jml_umkm_lokasi_kaki_lima += properties.jml_umkm_lokasi_kaki_lima || 0;
+      totals.jml_umkm_lokasi_keliling += properties.jml_umkm_lokasi_keliling || 0;
+      totals.jml_umkm_lokasi_dalam_bangunan_tempat_tinggal_online += properties.jml_umkm_lokasi_dalam_bangunan_tempat_tinggal_online || 0;
+      totals.jml_umkm_bentuk_pt_persero_sejenisnya += properties.jml_umkm_bentuk_pt_persero_sejenisnya || 0;
+      totals.jml_umkm_bentuk_ijin_desa_ijin_lainnya += properties.jml_umkm_bentuk_ijin_desa_ijin_lainnya || 0;
+      totals.jml_umkm_bentuk_tidak_berbadan_hukum += properties.jml_umkm_bentuk_tidak_berbadan_hukum || 0;
+      totals.jml_umkm_skala_usaha_mikro += properties.jml_umkm_skala_usaha_mikro || 0;
+      totals.jml_umkm_skala_usaha_kecil += properties.jml_umkm_skala_usaha_kecil || 0;
+      totals.jml_umkm_skala_usaha_menengah += properties.jml_umkm_skala_usaha_menengah || 0;
     }
   });
 
@@ -356,5 +404,5 @@ export default {
   updateRt,
   deleteRt,
   getAllRtGeoJSON,
-  calculateTotals, 
+  calculateTotals,
 };
