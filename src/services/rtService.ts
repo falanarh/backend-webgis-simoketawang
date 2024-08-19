@@ -384,7 +384,7 @@ const calculateTotals = async () => {
       totals.jml_umkm_lokasi_bangunan_campuran += properties.jml_umkm_lokasi_bangunan_campuran || 0;
       totals.jml_umkm_lokasi_kaki_lima += properties.jml_umkm_lokasi_kaki_lima || 0;
       totals.jml_umkm_lokasi_keliling += properties.jml_umkm_lokasi_keliling || 0;
-      totals.jml_umkm_lokasi_dalam_bangunan_tempat_tinggal_online += properties.jml_umkm_lokasi_dalam_bangunan_tempat_tinggal_online || 0;
+      totals.jml_umkm_lokasi_dalam_bangunan_tempat_tinggal_online += properties.jml_umkm_lokasi_didalam_bangunan_tempat_tinggal_online || 0;
       totals.jml_umkm_bentuk_pt_persero_sejenisnya += properties.jml_umkm_bentuk_pt_persero_sejenisnya || 0;
       totals.jml_umkm_bentuk_ijin_desa_ijin_lainnya += properties.jml_umkm_bentuk_ijin_desa_ijin_lainnya || 0;
       totals.jml_umkm_bentuk_tidak_berbadan_hukum += properties.jml_umkm_bentuk_tidak_berbadan_hukum || 0;
