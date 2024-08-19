@@ -2,6 +2,7 @@ import RumahTangga from "../models/rumahTanggaModel";
 import { IRumahTangga } from "../models/rumahTanggaModel";
 import Rt from "../models/rtModel";
 import updateAllRtAggregates from "./rtAndRutaService";
+import mongoose from "mongoose";
 
 const VALID_KATEGORI_USAHA = [
   "kbli_a",
@@ -92,21 +93,53 @@ const validateRumahTanggaData = (data: IRumahTangga) => {
 
 const addRumahTangga = async (data: IRumahTangga | IRumahTangga[]) => {
   const dataArray = Array.isArray(data) ? data : [data];
+  const session = await mongoose.startSession();
 
-  for (const item of dataArray) {
-    validateRumahTanggaData(item);
-    const rt = await Rt.findOne({ kode: item.kodeRt });
-    if (!rt) {
-      throw new Error(
-        `RT dengan kode ${item.kodeRt} tidak ditemukan. Pastikan kode RT yang dimasukkan benar.`
-      );
+  try {
+    session.startTransaction();
+
+    console.log("Validasi dan pencarian RT dimulai...");
+    
+    // Validasi data sebelum melakukan operasi database
+    for (const item of dataArray) {
+      validateRumahTanggaData(item);
+      const rt = await Rt.findOne({ kode: item.kodeRt }).session(session);
+      if (!rt) {
+        throw new Error(
+          `RT dengan kode ${item.kodeRt} tidak ditemukan. Pastikan kode RT yang dimasukkan benar.`
+        );
+      }
+    }
+
+    console.log("Semua data valid, menyimpan data rumah tangga...");
+
+    // Menyimpan data ke database
+    const newRumahTangga = await RumahTangga.insertMany(dataArray, { session });
+
+    console.log("Data rumah tangga berhasil disimpan. Memperbarui agregat RT...");
+
+    await session.commitTransaction();
+    session.endSession();
+
+     // Perbarui agregat RT setelah menyimpan data
+     await updateAllRtAggregates();
+
+     console.log("Agregat RT berhasil diperbarui.");
+
+    return newRumahTangga;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    // Logging kesalahan
+    if (error instanceof Error) {
+      console.error(`Gagal menyimpan data keluarga UMKM: ${error.message}`);
+      throw new Error(`Gagal menyimpan data keluarga UMKM: ${error.message}`);
+    } else {
+      console.error("Gagal menyimpan data keluarga UMKM: Unknown error");
+      throw new Error("Gagal menyimpan data keluarga UMKM: Unknown error");
     }
   }
-
-  const newRumahTangga = await RumahTangga.insertMany(dataArray);
-  await updateAllRtAggregates();
-
-  return newRumahTangga;
 };
 
 const updateRumahTangga = async (kode: string, data: IRumahTangga) => {
@@ -121,7 +154,7 @@ const updateRumahTangga = async (kode: string, data: IRumahTangga) => {
     await updateAllRtAggregates();
   } else {
     throw new Error(
-      "Rumah Tangga dengan kode tersebut tidak ditemukan. Pastikan kode yang dimasukkan benar."
+      "Keluarga UMKM dengan kode tersebut tidak ditemukan. Pastikan kode yang dimasukkan benar."
     );
   }
 
@@ -134,7 +167,7 @@ const deleteRumahTangga = async (kode: string) => {
     await updateAllRtAggregates();
   } else {
     throw new Error(
-      "Rumah Tangga dengan kode tersebut tidak ditemukan. Pastikan kode yang dimasukkan benar."
+      "Keluarga UMKM dengan kode tersebut tidak ditemukan. Pastikan kode yang dimasukkan benar."
     );
   }
 
@@ -144,7 +177,7 @@ const deleteRumahTangga = async (kode: string) => {
 const getRumahTanggaByKode = async (kode: string) => {
   const rumahTangga = await RumahTangga.findOne({ kode });
   if (!rumahTangga) {
-    throw new Error("Rumah Tangga dengan kode tersebut tidak ditemukan.");
+    throw new Error("Keluarga UMKM dengan kode tersebut tidak ditemukan.");
   }
   return rumahTangga;
 };

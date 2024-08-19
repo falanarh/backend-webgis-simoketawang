@@ -119,7 +119,7 @@ async function updateAllRtAggregates(): Promise<void> {
           }
         }
       ]);
-
+      // console.log(aggregationResult);
       if (aggregationResult.length > 0) {
         const aggregatedData = aggregationResult[0];
 
@@ -150,14 +150,14 @@ async function updateAllRtAggregates(): Promise<void> {
               "geojson.features.$.properties.jml_umkm_kbli_s": aggregatedData.kategoriUsahaCounts.kbli_s || 0,
               "geojson.features.$.properties.jml_umkm_kbli_t": aggregatedData.kategoriUsahaCounts.kbli_t || 0,
               "geojson.features.$.properties.jml_umkm_kbli_u": aggregatedData.kategoriUsahaCounts.kbli_u || 0,
-              "geojson.features.$.properties.jml_umkm_bentuk_badan_usaha": aggregatedData.bentukBadanUsahaCounts["pt/persero/sejenisnya"] || 0,
+              "geojson.features.$.properties.jml_umkm_bentuk_pt_persero_sejenisnya": aggregatedData.bentukBadanUsahaCounts["pt/persero/sejenisnya"] || 0,
               "geojson.features.$.properties.jml_umkm_bentuk_ijin_desa_ijin_lainnya": aggregatedData.bentukBadanUsahaCounts["ijin-desa/ijin-lainnya"] || 0,
               "geojson.features.$.properties.jml_umkm_bentuk_tidak_berbadan_hukum": aggregatedData.bentukBadanUsahaCounts["tidak-berbadan-hukum"] || 0,
               "geojson.features.$.properties.jml_umkm_lokasi_bangunan_khusus_usaha": aggregatedData.lokasiTempatUsahaCounts["bangunan-khusus-usaha"] || 0,
               "geojson.features.$.properties.jml_umkm_lokasi_bangunan_campuran": aggregatedData.lokasiTempatUsahaCounts["bangunan-campuran"] || 0,
               "geojson.features.$.properties.jml_umkm_lokasi_kaki_lima": aggregatedData.lokasiTempatUsahaCounts["kaki-lima"] || 0,
               "geojson.features.$.properties.jml_umkm_lokasi_keliling": aggregatedData.lokasiTempatUsahaCounts["keliling"] || 0,
-              "geojson.features.$.properties.jml_umkm_lokasi_dalam_bangunan_tempat_tinggal_online": aggregatedData.lokasiTempatUsahaCounts["didalam-bangunan-tempat-tinggal/online"] || 0,
+              "geojson.features.$.properties.jml_umkm_lokasi_didalam_bangunan_tempat_tinggal_online": aggregatedData.lokasiTempatUsahaCounts["didalam-bangunan-tempat-tinggal/online"] || 0,
               "geojson.features.$.properties.jml_umkm_skala_usaha_mikro": aggregatedData.skalaUsahaCounts["usaha-mikro"] || 0,
               "geojson.features.$.properties.jml_umkm_skala_usaha_kecil": aggregatedData.skalaUsahaCounts["usaha-kecil"] || 0,
               "geojson.features.$.properties.jml_umkm_skala_usaha_menengah": aggregatedData.skalaUsahaCounts["usaha-menengah"] || 0

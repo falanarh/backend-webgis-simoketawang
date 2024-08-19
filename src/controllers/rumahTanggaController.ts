@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import rumahTanggaService from "../services/rumahTanggaService";
+import updateAllRtAggregates from "../services/rtAndRutaService";
 
 const addRumahTangga = async (req: Request, res: Response) => {
   try {

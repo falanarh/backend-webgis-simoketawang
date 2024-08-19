@@ -54,6 +54,7 @@ interface IRumahTangga extends Document {
     | "keliling"
     | "didalam-bangunan-tempat-tinggal/online";
   skala_usaha: "usaha-mikro" | "usaha-kecil" | "usaha-menengah";
+  catatan: string;
 }
 
 // Define schema
@@ -143,6 +144,7 @@ const RumahTanggaSchema: Schema = new Schema({
     enum: ["usaha-mikro", "usaha-kecil", "usaha-menengah"],
     required: true,
   },
+  catatan: { type: String },
 });
 
 // Ensure unique index for kode
