@@ -6,7 +6,7 @@ async function updateAllRtAggregates(): Promise<void> {
   try {
     // Ambil seluruh kode RT yang ada dari koleksi Rt
     const rtList = await rtModel.find({}, { "geojson.features.properties.kode": 1 });
-    
+
     // Loop melalui setiap kode RT dan lakukan agregasi
     for (const rt of rtList) {
       const rtKode = rt.geojson.features[0].properties.kode;
@@ -119,55 +119,77 @@ async function updateAllRtAggregates(): Promise<void> {
           }
         }
       ]);
-      // console.log(aggregationResult);
-      if (aggregationResult.length > 0) {
-        const aggregatedData = aggregationResult[0];
 
-        // Update data agregat di koleksi Rt
-        await rtModel.updateOne(
-          { "geojson.features.properties.kode": rtKode },
-          {
-            $set: {
-              "geojson.features.$.properties.jml_umkm": aggregatedData.totalUsaha,
-              "geojson.features.$.properties.jml_umkm_kbli_a": aggregatedData.kategoriUsahaCounts.kbli_a || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_b": aggregatedData.kategoriUsahaCounts.kbli_b || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_c": aggregatedData.kategoriUsahaCounts.kbli_c || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_d": aggregatedData.kategoriUsahaCounts.kbli_d || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_e": aggregatedData.kategoriUsahaCounts.kbli_e || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_f": aggregatedData.kategoriUsahaCounts.kbli_f || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_g": aggregatedData.kategoriUsahaCounts.kbli_g || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_h": aggregatedData.kategoriUsahaCounts.kbli_h || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_i": aggregatedData.kategoriUsahaCounts.kbli_i || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_j": aggregatedData.kategoriUsahaCounts.kbli_j || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_k": aggregatedData.kategoriUsahaCounts.kbli_k || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_l": aggregatedData.kategoriUsahaCounts.kbli_l || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_m": aggregatedData.kategoriUsahaCounts.kbli_m || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_n": aggregatedData.kategoriUsahaCounts.kbli_n || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_o": aggregatedData.kategoriUsahaCounts.kbli_o || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_p": aggregatedData.kategoriUsahaCounts.kbli_p || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_q": aggregatedData.kategoriUsahaCounts.kbli_q || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_r": aggregatedData.kategoriUsahaCounts.kbli_r || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_s": aggregatedData.kategoriUsahaCounts.kbli_s || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_t": aggregatedData.kategoriUsahaCounts.kbli_t || 0,
-              "geojson.features.$.properties.jml_umkm_kbli_u": aggregatedData.kategoriUsahaCounts.kbli_u || 0,
-              "geojson.features.$.properties.jml_umkm_bentuk_pt_persero_sejenisnya": aggregatedData.bentukBadanUsahaCounts["pt/persero/sejenisnya"] || 0,
-              "geojson.features.$.properties.jml_umkm_bentuk_ijin_desa_ijin_lainnya": aggregatedData.bentukBadanUsahaCounts["ijin-desa/ijin-lainnya"] || 0,
-              "geojson.features.$.properties.jml_umkm_bentuk_tidak_berbadan_hukum": aggregatedData.bentukBadanUsahaCounts["tidak-berbadan-hukum"] || 0,
-              "geojson.features.$.properties.jml_umkm_lokasi_bangunan_khusus_usaha": aggregatedData.lokasiTempatUsahaCounts["bangunan-khusus-usaha"] || 0,
-              "geojson.features.$.properties.jml_umkm_lokasi_bangunan_campuran": aggregatedData.lokasiTempatUsahaCounts["bangunan-campuran"] || 0,
-              "geojson.features.$.properties.jml_umkm_lokasi_kaki_lima": aggregatedData.lokasiTempatUsahaCounts["kaki-lima"] || 0,
-              "geojson.features.$.properties.jml_umkm_lokasi_keliling": aggregatedData.lokasiTempatUsahaCounts["keliling"] || 0,
-              "geojson.features.$.properties.jml_umkm_lokasi_didalam_bangunan_tempat_tinggal_online": aggregatedData.lokasiTempatUsahaCounts["didalam-bangunan-tempat-tinggal/online"] || 0,
-              "geojson.features.$.properties.jml_umkm_skala_usaha_mikro": aggregatedData.skalaUsahaCounts["usaha-mikro"] || 0,
-              "geojson.features.$.properties.jml_umkm_skala_usaha_kecil": aggregatedData.skalaUsahaCounts["usaha-kecil"] || 0,
-              "geojson.features.$.properties.jml_umkm_skala_usaha_menengah": aggregatedData.skalaUsahaCounts["usaha-menengah"] || 0
-            },
+      // Jika tidak ada data agregat ditemukan, set semua nilai menjadi 0
+      const aggregatedData = aggregationResult.length > 0 ? aggregationResult[0] : {
+        totalUsaha: 0,
+        kategoriUsahaCounts: {
+          kbli_a: 0, kbli_b: 0, kbli_c: 0, kbli_d: 0, kbli_e: 0, kbli_f: 0,
+          kbli_g: 0, kbli_h: 0, kbli_i: 0, kbli_j: 0, kbli_k: 0, kbli_l: 0,
+          kbli_m: 0, kbli_n: 0, kbli_o: 0, kbli_p: 0, kbli_q: 0, kbli_r: 0,
+          kbli_s: 0, kbli_t: 0, kbli_u: 0
+        },
+        bentukBadanUsahaCounts: {
+          "pt/persero/sejenisnya": 0,
+          "ijin-desa/ijin-lainnya": 0,
+          "tidak-berbadan-hukum": 0
+        },
+        lokasiTempatUsahaCounts: {
+          "bangunan-khusus-usaha": 0,
+          "bangunan-campuran": 0,
+          "kaki-lima": 0,
+          "keliling": 0,
+          "didalam-bangunan-tempat-tinggal/online": 0
+        },
+        skalaUsahaCounts: {
+          "usaha-mikro": 0,
+          "usaha-kecil": 0,
+          "usaha-menengah": 0
+        }
+      };
+
+      // Update data agregat di koleksi Rt
+      await rtModel.updateOne(
+        { "geojson.features.properties.kode": rtKode },
+        {
+          $set: {
+            "geojson.features.$.properties.jml_umkm": aggregatedData.totalUsaha,
+            "geojson.features.$.properties.jml_umkm_kbli_a": aggregatedData.kategoriUsahaCounts.kbli_a,
+            "geojson.features.$.properties.jml_umkm_kbli_b": aggregatedData.kategoriUsahaCounts.kbli_b,
+            "geojson.features.$.properties.jml_umkm_kbli_c": aggregatedData.kategoriUsahaCounts.kbli_c,
+            "geojson.features.$.properties.jml_umkm_kbli_d": aggregatedData.kategoriUsahaCounts.kbli_d,
+            "geojson.features.$.properties.jml_umkm_kbli_e": aggregatedData.kategoriUsahaCounts.kbli_e,
+            "geojson.features.$.properties.jml_umkm_kbli_f": aggregatedData.kategoriUsahaCounts.kbli_f,
+            "geojson.features.$.properties.jml_umkm_kbli_g": aggregatedData.kategoriUsahaCounts.kbli_g,
+            "geojson.features.$.properties.jml_umkm_kbli_h": aggregatedData.kategoriUsahaCounts.kbli_h,
+            "geojson.features.$.properties.jml_umkm_kbli_i": aggregatedData.kategoriUsahaCounts.kbli_i,
+            "geojson.features.$.properties.jml_umkm_kbli_j": aggregatedData.kategoriUsahaCounts.kbli_j,
+            "geojson.features.$.properties.jml_umkm_kbli_k": aggregatedData.kategoriUsahaCounts.kbli_k,
+            "geojson.features.$.properties.jml_umkm_kbli_l": aggregatedData.kategoriUsahaCounts.kbli_l,
+            "geojson.features.$.properties.jml_umkm_kbli_m": aggregatedData.kategoriUsahaCounts.kbli_m,
+            "geojson.features.$.properties.jml_umkm_kbli_n": aggregatedData.kategoriUsahaCounts.kbli_n,
+            "geojson.features.$.properties.jml_umkm_kbli_o": aggregatedData.kategoriUsahaCounts.kbli_o,
+            "geojson.features.$.properties.jml_umkm_kbli_p": aggregatedData.kategoriUsahaCounts.kbli_p,
+            "geojson.features.$.properties.jml_umkm_kbli_q": aggregatedData.kategoriUsahaCounts.kbli_q,
+            "geojson.features.$.properties.jml_umkm_kbli_r": aggregatedData.kategoriUsahaCounts.kbli_r,
+            "geojson.features.$.properties.jml_umkm_kbli_s": aggregatedData.kategoriUsahaCounts.kbli_s,
+            "geojson.features.$.properties.jml_umkm_kbli_t": aggregatedData.kategoriUsahaCounts.kbli_t,
+            "geojson.features.$.properties.jml_umkm_kbli_u": aggregatedData.kategoriUsahaCounts.kbli_u,
+            "geojson.features.$.properties.jml_umkm_bentuk_pt_persero_sejenisnya": aggregatedData.bentukBadanUsahaCounts["pt/persero/sejenisnya"],
+            "geojson.features.$.properties.jml_umkm_bentuk_ijin_desa_ijin_lainnya": aggregatedData.bentukBadanUsahaCounts["ijin-desa/ijin-lainnya"],
+            "geojson.features.$.properties.jml_umkm_bentuk_tidak_berbadan_hukum": aggregatedData.bentukBadanUsahaCounts["tidak-berbadan-hukum"],
+            "geojson.features.$.properties.jml_umkm_lokasi_bangunan_khusus_usaha": aggregatedData.lokasiTempatUsahaCounts["bangunan-khusus-usaha"],
+            "geojson.features.$.properties.jml_umkm_lokasi_bangunan_campuran": aggregatedData.lokasiTempatUsahaCounts["bangunan-campuran"],
+            "geojson.features.$.properties.jml_umkm_lokasi_kaki_lima": aggregatedData.lokasiTempatUsahaCounts["kaki-lima"],
+            "geojson.features.$.properties.jml_umkm_lokasi_keliling": aggregatedData.lokasiTempatUsahaCounts["keliling"],
+            "geojson.features.$.properties.jml_umkm_lokasi_didalam_bangunan_tempat_tinggal_online": aggregatedData.lokasiTempatUsahaCounts["didalam-bangunan-tempat-tinggal/online"],
+            "geojson.features.$.properties.jml_umkm_skala_usaha_mikro": aggregatedData.skalaUsahaCounts["usaha-mikro"],
+            "geojson.features.$.properties.jml_umkm_skala_usaha_kecil": aggregatedData.skalaUsahaCounts["usaha-kecil"],
+            "geojson.features.$.properties.jml_umkm_skala_usaha_menengah": aggregatedData.skalaUsahaCounts["usaha-menengah"]
           },
-          { arrayFilters: [{ "elem.properties.kode": rtKode }] }
-        );
-      } else {
-        console.log(`No data found for RT code: ${rtKode}`);
-      }
+        },
+        { arrayFilters: [{ "elem.properties.kode": rtKode }] }
+      );
     }
   } catch (error) {
     console.error("Error updating RT aggregate data:", error);
