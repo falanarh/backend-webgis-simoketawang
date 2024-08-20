@@ -183,7 +183,7 @@ const getRumahTanggaByKode = async (kode: string) => {
 };
 
 const getAllRumahTangga = async () => {
-  return await RumahTangga.find();
+  return await RumahTangga.find().sort({ kode: 1 });
 };
 
 export default {
