@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import rumahTanggaModel from '../models/rumahTanggaModel';
 import rtModel from '../models/rtModel';
 

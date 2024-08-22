@@ -2,6 +2,7 @@ import { IUsahaKlengkeng } from "../models/usahaKlengkengModel";
 import Sls from "../models/slsModel";
 import UsahaKlengkeng from "../models/usahaKlengkengModel";
 import mongoose from "mongoose";
+import updateAllSlsAggregates from "./slsAndUsahaKlengkengService";
 
 const VALID_JENIS_KLENGKENG = [
   "new_crystal",
@@ -69,6 +70,8 @@ const addUsahaKlengkeng = async (data: IUsahaKlengkeng | IUsahaKlengkeng[]) => {
     await session.commitTransaction();
     session.endSession();
 
+    await updateAllSlsAggregates();
+
     return newUsahaKlengkeng;
   } catch (error) {
     await session.abortTransaction();
@@ -94,19 +97,23 @@ const updateUsahaKlengkeng = async (kode: string, data: IUsahaKlengkeng) => {
     { new: true }
   );
   if (upadtedUsahaKlengkeng) {
-    return upadtedUsahaKlengkeng;
+    await updateAllSlsAggregates();
   } else {
     throw new Error("Usaha klengkeng tidak ditemukan.");
   }
+
+  return upadtedUsahaKlengkeng;
 };
 
 const deleteUsahaKlengkeng = async (kode: string) => {
   const deletedUsahaKlengkeng = await UsahaKlengkeng.findOneAndDelete({ kode });
   if (deletedUsahaKlengkeng) {
-    return deletedUsahaKlengkeng;
+    await updateAllSlsAggregates();
   } else {
     throw new Error("Usaha klengkeng tidak ditemukan.");
   }
+
+  return deletedUsahaKlengkeng;
 };
 
 const getUsahaKlengkengByKode = async (kode: string) => {
