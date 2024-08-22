@@ -6,6 +6,8 @@ import connectDB from "./config/db";
 import rtRoutes from "./routes/rtRoutes";
 import rumahTanggaRoutes from "./routes/rumahTanggaRoutes";
 import authRoutes from "./routes/authRoutes";
+import slsRoutes from "./routes/slsRoutes";
+import usahaKlengkengRoutes from "./routes/usahaKlengkengRoutes";
 
 const cors = require("cors");
 
@@ -29,11 +31,11 @@ app.use(cors({
   // allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 // app.use(bodyParser.json());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/rumahTangga", rumahTanggaRoutes);
-app.use("/api/rt", rtRoutes);
+app.use("/api/sls", slsRoutes)
+app.use("/api/usahaKlengkeng", usahaKlengkengRoutes);
 
 export default app;
