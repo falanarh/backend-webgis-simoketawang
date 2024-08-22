@@ -77,7 +77,7 @@ function sortGeoJsonByKode(geoJsonArray: any[]) {
 }
 
 const getAllSls = async () => {
-  const slsList = await Sls.find().select("-geojson");
+  const slsList = await Sls.find().select("geojson");
   const properties = slsList.map((sls) => sls.geojson.features[0].properties);
 
   properties.sort((a, b) => {
