@@ -124,7 +124,7 @@ async function updateAllSlsAggregates(): Promise<void> {
 
       // Update data agregat di koleksi Sls
       await slsModel.updateOne(
-        { kode: slsKode },
+        { "geojson.features.properties.kode": slsKode },
         {
           $set: {
             "geojson.features.$.properties.jml_unit_usaha_klengkeng": aggregatedData.totalUsaha,
