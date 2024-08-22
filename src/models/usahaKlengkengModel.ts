@@ -26,6 +26,7 @@ interface IUsahaKlengkeng extends Document {
     | "makanan"
   )[];
   catatan: string;
+  url_img: string;
 }
 
 const UsahaKlengkengSchema = new Schema<IUsahaKlengkeng>({
@@ -61,6 +62,7 @@ const UsahaKlengkengSchema = new Schema<IUsahaKlengkeng>({
     required: true,
   },
   catatan: { type: String },
+  url_img: { type: String },
 });
 
 UsahaKlengkengSchema.index({ kode: 1 }, { unique: true });
