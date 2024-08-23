@@ -158,6 +158,7 @@ const calculateTotals = async () => {
   const slsList = await Sls.find().select("geojson");
 
   const totals = {
+    jml_penduduk: 0,
     jml_unit_usaha_klengkeng: 0,
     jml_unit_usaha_klengkeng_new_crystal: 0,
     jml_unit_usaha_klengkeng_pingpong: 0,
@@ -172,12 +173,16 @@ const calculateTotals = async () => {
     jml_unit_usaha_klengkeng_batik_ecoprint: 0,
     jml_unit_usaha_klengkeng_minuman: 0,
     jml_unit_usaha_klengkeng_makanan: 0,
+    jml_pohon: 0,
+    jml_pohon_blm_berproduksi: 0,
+    jml_pohon_sdh_berproduksi: 0,
   };
 
   slsList.forEach((sls) => {
     const { features } = sls.geojson;
     if (features && features.length > 0) {
       const { properties } = features[0];
+      totals.jml_penduduk += properties.jml_penduduk;
       totals.jml_unit_usaha_klengkeng += properties.jml_unit_usaha_klengkeng;
       totals.jml_unit_usaha_klengkeng_new_crystal +=
         properties.jml_unit_usaha_klengkeng_new_crystal;
@@ -205,6 +210,9 @@ const calculateTotals = async () => {
         properties.jml_unit_usaha_klengkeng_minuman;
       totals.jml_unit_usaha_klengkeng_makanan +=
         properties.jml_unit_usaha_klengkeng_makanan;
+      totals.jml_pohon += properties.jml_pohon;
+      totals.jml_pohon_blm_berproduksi += properties.jml_pohon_blm_berproduksi;
+      totals.jml_pohon_sdh_berproduksi += properties.jml_pohon_sdh_berproduksi;
     }
   });
   return totals;

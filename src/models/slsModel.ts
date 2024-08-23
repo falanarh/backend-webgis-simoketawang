@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { isJSDocImplementsTag } from "typescript";
 
 // Interface untuk CRS yang terbatas
 interface ICRS {
@@ -27,6 +28,7 @@ interface IGeoJSONFeature extends Document {
     rw: string;
     dusun: string;
     label: string;
+    jml_penduduk: number;
     jml_unit_usaha_klengkeng: number;
     jml_unit_usaha_klengkeng_new_crystal: number;
     jml_unit_usaha_klengkeng_pingpong: number;
@@ -41,6 +43,9 @@ interface IGeoJSONFeature extends Document {
     jml_unit_usaha_klengkeng_batik_ecoprint: number;
     jml_unit_usaha_klengkeng_minuman: number;
     jml_unit_usaha_klengkeng_makanan: number;
+    jml_pohon: number;
+    jml_pohon_blm_berproduksi: number;
+    jml_pohon_sdh_berproduksi: number;
     [key: string]: any; // Untuk properti tambahan lainnya
   };
 }
@@ -96,6 +101,7 @@ const GeoJSONFeatureSchema: Schema = new Schema({
     rw: { type: String, required: true },
     dusun: { type: String, required: true },
     label: { type: String, required: true },
+    jml_penduduk: { type: Number, required: true },
     jml_unit_usaha_klengkeng: { type: Number, required: true },
     jml_unit_usaha_klengkeng_new_crystal: { type: Number, required: true },
     jml_unit_usaha_klengkeng_pingpong: { type: Number, required: true },
@@ -113,6 +119,9 @@ const GeoJSONFeatureSchema: Schema = new Schema({
     jml_unit_usaha_klengkeng_batik_ecoprint: { type: Number, required: true },
     jml_unit_usaha_klengkeng_minuman: { type: Number, required: true },
     jml_unit_usaha_klengkeng_makanan: { type: Number, required: true },
+    jml_pohon: { type: Number, required: true },
+    jml_pohon_blm_berproduksi: { type: Number, required: true },
+    jml_pohon_sdh_berproduksi: { type: Number, required: true },
   },
 });
 
