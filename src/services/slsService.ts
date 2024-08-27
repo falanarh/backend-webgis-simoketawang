@@ -81,8 +81,8 @@ const getAllSls = async () => {
   const properties = slsList.map((sls) => sls.geojson.features[0].properties);
 
   properties.sort((a, b) => {
-    const slsA = parseInt(a.sls, 10);
-    const slsB = parseInt(b.sls, 10);
+    const slsA = parseInt(a.kode, 10);
+    const slsB = parseInt(b.kode, 10);
     return slsA - slsB;
   });
 
