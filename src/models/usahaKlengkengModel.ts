@@ -30,7 +30,7 @@ interface IUsahaKlengkeng extends Document {
 }
 
 const UsahaKlengkengSchema = new Schema<IUsahaKlengkeng>({
-  kode: { type: String, required: true },
+  kode: { type: String },
   kodeSls: { type: String, required: true },
   rt_rw_dusun: { type: String, required: true },
   nama_kepala_keluarga: { type: String, required: true },
@@ -65,7 +65,7 @@ const UsahaKlengkengSchema = new Schema<IUsahaKlengkeng>({
   url_img: { type: String },
 });
 
-UsahaKlengkengSchema.index({ kode: 1 }, { unique: true });
+// UsahaKlengkengSchema.index({ kode: 1 }, { unique: true });
 
 export { IUsahaKlengkeng };
 export default mongoose.model<IUsahaKlengkeng>(

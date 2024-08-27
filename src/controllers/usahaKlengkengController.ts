@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
 import usahaKlengkengService from "../services/usahaKlengkengService";
+import mongoose from "mongoose";
 
 const addUsahaKlengkeng = async (req: Request, res: Response) => {
   try {
     const data = Array.isArray(req.body) ? req.body : [req.body];
-    const newUsahaKlengkeng = await usahaKlengkengService.addUsahaKlengkeng(
-      data
-    );
+    const newUsahaKlengkeng = await usahaKlengkengService.addUsahaKlengkeng(data);
     res.status(201).json({
       statusCode: 201,
       message: "UsahaKlengkeng created successfully",
@@ -22,11 +21,8 @@ const addUsahaKlengkeng = async (req: Request, res: Response) => {
 
 const updateUsahaKlengkeng = async (req: Request, res: Response) => {
   try {
-    const updatedUsahaKlengkeng =
-      await usahaKlengkengService.updateUsahaKlengkeng(
-        req.params.kode,
-        req.body
-      );
+    const id = new mongoose.Types.ObjectId(req.params.id)
+    const updatedUsahaKlengkeng = await usahaKlengkengService.updateUsahaKlengkeng(id, req.body);
     if (!updatedUsahaKlengkeng) {
       return res.status(404).json({
         statusCode: 404,
@@ -48,8 +44,8 @@ const updateUsahaKlengkeng = async (req: Request, res: Response) => {
 
 const deleteUsahaKlengkeng = async (req: Request, res: Response) => {
   try {
-    const deletedUsahaKlengkeng =
-      await usahaKlengkengService.deleteUsahaKlengkeng(req.params.kode);
+    const id = new mongoose.Types.ObjectId(req.params.id);
+    const deletedUsahaKlengkeng = await usahaKlengkengService.deleteUsahaKlengkeng(id);
     if (!deletedUsahaKlengkeng) {
       return res.status(404).json({
         statusCode: 404,
@@ -71,9 +67,8 @@ const deleteUsahaKlengkeng = async (req: Request, res: Response) => {
 
 const getUsahaKlengkengByKode = async (req: Request, res: Response) => {
   try {
-    const usahaKlengkeng = await usahaKlengkengService.getUsahaKlengkengByKode(
-      req.params.kode
-    );
+    const kode = req.params.kode;
+    const usahaKlengkeng = await usahaKlengkengService.getUsahaKlengkengByKode(kode);
     if (!usahaKlengkeng) {
       return res.status(404).json({
         statusCode: 404,
@@ -95,8 +90,7 @@ const getUsahaKlengkengByKode = async (req: Request, res: Response) => {
 
 const getAllUsahaKlengkeng = async (req: Request, res: Response) => {
   try {
-    const usahaKlengkengList =
-      await usahaKlengkengService.getAllUsahaKlengkeng();
+    const usahaKlengkengList = await usahaKlengkengService.getAllUsahaKlengkeng();
     res.status(200).json({
       statusCode: 200,
       message: "UsahaKlengkeng fetched successfully",

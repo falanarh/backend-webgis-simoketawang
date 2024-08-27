@@ -53,6 +53,7 @@ const addUsahaKlengkeng = async (data: IUsahaKlengkeng | IUsahaKlengkeng[]) => {
   try {
     session.startTransaction();
 
+    // Validasi dan pencarian SLS
     for (const item of dataArray) {
       validateUsahaKlengkengData(item);
       const sls = await Sls.findOne({ kode: item.kodeSls }).session(session);
@@ -63,16 +64,85 @@ const addUsahaKlengkeng = async (data: IUsahaKlengkeng | IUsahaKlengkeng[]) => {
       }
     }
 
+    // Menentukan kode usaha baru
+    for (const item of dataArray) {
+      // Periksa dan pastikan tidak ada duplikasi kode
+      const existingUsaha = await UsahaKlengkeng.findOne({
+        kode: item.kode,
+      }).session(session);
+      if (existingUsaha) {
+        throw new Error(`Kode usaha ${item.kode} sudah ada.`);
+      }
+
+      // Generate kode usaha baru jika belum ada
+      let highestCode = await UsahaKlengkeng.findOne({
+        kode: new RegExp(`^${item.kodeSls}`),
+      })
+        .sort({ kode: -1 })
+        .session(session);
+
+      // Tentukan nomor urut berikutnya
+      let nextNumber = 1;
+      if (highestCode) {
+        const highestNumber = parseInt(
+          highestCode.kode.slice(item.kodeSls.length),
+          10
+        );
+        nextNumber = highestNumber + 1;
+      }
+
+      // Format nomor urut dengan tiga digit
+      const formattedNumber = nextNumber.toString().padStart(3, "0");
+      item.kode = `${item.kodeSls}${formattedNumber}`;
+    }
+
+    // Simpan data usaha kelengkeng ke database
     const newUsahaKlengkeng = await UsahaKlengkeng.insertMany(dataArray, {
       session,
     });
 
+    // Verifikasi dan perbaiki urutan kode untuk setiap kodeSls
+    const kodeSlsList = Array.from(
+      new Set(dataArray.map((item) => item.kodeSls))
+    );
+
+    for (const kodeSls of kodeSlsList) {
+      const usahaList = await UsahaKlengkeng.find({
+        kode: new RegExp(`^${kodeSls}`),
+      })
+        .sort({ kode: 1 })
+        .session(session);
+
+      // Perbaiki kode jika ada duplikasi atau kesalahan urutan
+      const bulkOps = usahaList
+        .map((usaha, index) => {
+          const correctKode = `${kodeSls}${(index + 1)
+            .toString()
+            .padStart(3, "0")}`;
+          if (usaha.kode !== correctKode) {
+            return {
+              updateOne: {
+                filter: { _id: usaha._id },
+                update: { $set: { kode: correctKode } },
+              },
+            };
+          }
+          return null;
+        })
+        .filter((op) => op !== null);
+
+      if (bulkOps.length > 0) {
+        await UsahaKlengkeng.bulkWrite(bulkOps, { session });
+      }
+    }
+
     await session.commitTransaction();
     session.endSession();
 
+    // Update agregat SLS setelah menyimpan data
     await updateAllSlsAggregates();
 
-    return newUsahaKlengkeng;
+    return [];
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -88,32 +158,95 @@ const addUsahaKlengkeng = async (data: IUsahaKlengkeng | IUsahaKlengkeng[]) => {
   }
 };
 
-const updateUsahaKlengkeng = async (kode: string, data: IUsahaKlengkeng) => {
+const updateUsahaKlengkeng = async (
+  id: mongoose.Types.ObjectId,
+  data: IUsahaKlengkeng
+) => {
   validateUsahaKlengkengData(data);
 
-  const upadtedUsahaKlengkeng = await UsahaKlengkeng.findOneAndUpdate(
-    { kode },
+  const updatedUsahaKlengkeng = await UsahaKlengkeng.findByIdAndUpdate(
+    id,
     data,
     { new: true }
   );
-  if (upadtedUsahaKlengkeng) {
+  if (updatedUsahaKlengkeng) {
     await updateAllSlsAggregates();
   } else {
     throw new Error("Usaha klengkeng tidak ditemukan.");
   }
 
-  return upadtedUsahaKlengkeng;
+  return updatedUsahaKlengkeng;
 };
 
-const deleteUsahaKlengkeng = async (kode: string) => {
-  const deletedUsahaKlengkeng = await UsahaKlengkeng.findOneAndDelete({ kode });
-  if (deletedUsahaKlengkeng) {
-    await updateAllSlsAggregates();
-  } else {
-    throw new Error("Usaha klengkeng tidak ditemukan.");
-  }
+const ensureSequentialKode = async (
+  kodeSls: string,
+  session: mongoose.ClientSession
+) => {
+  const usahaList = await UsahaKlengkeng.find({
+    kode: new RegExp(`^${kodeSls}`),
+  })
+    .sort({ kode: 1 })
+    .session(session);
 
-  return deletedUsahaKlengkeng;
+  const bulkOps = usahaList
+    .map((usaha, index) => {
+      const correctKode = `${kodeSls}${(index + 1)
+        .toString()
+        .padStart(3, "0")}`;
+      if (usaha.kode !== correctKode) {
+        return {
+          updateOne: {
+            filter: { _id: usaha._id },
+            update: { $set: { kode: correctKode } },
+          },
+        };
+      }
+      return null;
+    })
+    .filter((op) => op !== null);
+
+  if (bulkOps.length > 0) {
+    await UsahaKlengkeng.bulkWrite(bulkOps, { session });
+  }
+};
+
+const deleteUsahaKlengkeng = async (id: mongoose.Types.ObjectId) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const usahaToDelete = await UsahaKlengkeng.findById(id).session(session);
+    if (!usahaToDelete) {
+      throw new Error("Usaha klengkeng tidak ditemukan.");
+    }
+
+    // Hapus usaha klengkeng
+    await UsahaKlengkeng.findByIdAndDelete(id).session(session);
+
+    // Perbarui kode usaha untuk kodeSls yang sama
+    await ensureSequentialKode(usahaToDelete.kode.slice(0, -3), session);
+
+    // Commit transaksi
+    await session.commitTransaction();
+    session.endSession();
+
+    // Update agregat SLS setelah menyimpan data
+    await updateAllSlsAggregates();
+
+    return usahaToDelete;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    // Logging kesalahan
+    if (error instanceof Error) {
+      console.error(`Gagal menghapus usaha kelengkeng: ${error.message}`);
+      throw new Error(`Gagal menghapus usaha kelengkeng: ${error.message}`);
+    } else {
+      console.error("Gagal menghapus usaha kelengkeng: Unknown error");
+      throw new Error("Gagal menghapus usaha kelengkeng: Unknown error");
+    }
+  }
 };
 
 const getUsahaKlengkengByKode = async (kode: string) => {
