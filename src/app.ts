@@ -8,6 +8,7 @@ import rumahTanggaRoutes from "./routes/rumahTanggaRoutes";
 import authRoutes from "./routes/authRoutes";
 import slsRoutes from "./routes/slsRoutes";
 import usahaKlengkengRoutes from "./routes/usahaKlengkengRoutes";
+import uploadRoutes from './routes/uploadRoutes';
 
 const cors = require("cors");
 
@@ -37,5 +38,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use("/api/auth", authRoutes);
 app.use("/api/sls", slsRoutes)
 app.use("/api/usahaKlengkeng", usahaKlengkengRoutes);
+app.use('/api/photo', uploadRoutes);
 
 export default app;
