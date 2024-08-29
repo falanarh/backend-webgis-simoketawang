@@ -5,7 +5,9 @@ import mongoose from "mongoose";
 const addUsahaKlengkeng = async (req: Request, res: Response) => {
   try {
     const data = Array.isArray(req.body) ? req.body : [req.body];
-    const newUsahaKlengkeng = await usahaKlengkengService.addUsahaKlengkeng(data);
+    const newUsahaKlengkeng = await usahaKlengkengService.addUsahaKlengkeng(
+      data
+    );
     res.status(201).json({
       statusCode: 201,
       message: "UsahaKlengkeng created successfully",
@@ -21,8 +23,9 @@ const addUsahaKlengkeng = async (req: Request, res: Response) => {
 
 const updateUsahaKlengkeng = async (req: Request, res: Response) => {
   try {
-    const id = new mongoose.Types.ObjectId(req.params.id)
-    const updatedUsahaKlengkeng = await usahaKlengkengService.updateUsahaKlengkeng(id, req.body);
+    const id = new mongoose.Types.ObjectId(req.params.id);
+    const updatedUsahaKlengkeng =
+      await usahaKlengkengService.updateUsahaKlengkeng(id, req.body);
     if (!updatedUsahaKlengkeng) {
       return res.status(404).json({
         statusCode: 404,
@@ -45,7 +48,8 @@ const updateUsahaKlengkeng = async (req: Request, res: Response) => {
 const deleteUsahaKlengkeng = async (req: Request, res: Response) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
-    const deletedUsahaKlengkeng = await usahaKlengkengService.deleteUsahaKlengkeng(id);
+    const deletedUsahaKlengkeng =
+      await usahaKlengkengService.deleteUsahaKlengkeng(id);
     if (!deletedUsahaKlengkeng) {
       return res.status(404).json({
         statusCode: 404,
@@ -65,10 +69,38 @@ const deleteUsahaKlengkeng = async (req: Request, res: Response) => {
   }
 };
 
+const deleteManyUsahaKlengkeng = async (req: Request, res: Response) => {
+  try {
+    const ids = req.body;
+
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Request body must be an array.",
+      });
+    }
+
+    const result = await usahaKlengkengService.deleteManyUsahaKlengkeng(ids);
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "UsahaKlengkeng deleted successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      statusCode: 500,
+      message: error.message,
+    });
+  }
+};
+
 const getUsahaKlengkengByKode = async (req: Request, res: Response) => {
   try {
     const kode = req.params.kode;
-    const usahaKlengkeng = await usahaKlengkengService.getUsahaKlengkengByKode(kode);
+    const usahaKlengkeng = await usahaKlengkengService.getUsahaKlengkengByKode(
+      kode
+    );
     if (!usahaKlengkeng) {
       return res.status(404).json({
         statusCode: 404,
@@ -90,7 +122,8 @@ const getUsahaKlengkengByKode = async (req: Request, res: Response) => {
 
 const getAllUsahaKlengkeng = async (req: Request, res: Response) => {
   try {
-    const usahaKlengkengList = await usahaKlengkengService.getAllUsahaKlengkeng();
+    const usahaKlengkengList =
+      await usahaKlengkengService.getAllUsahaKlengkeng();
     res.status(200).json({
       statusCode: 200,
       message: "UsahaKlengkeng fetched successfully",
@@ -108,6 +141,7 @@ export default {
   addUsahaKlengkeng,
   updateUsahaKlengkeng,
   deleteUsahaKlengkeng,
+  deleteManyUsahaKlengkeng,
   getUsahaKlengkengByKode,
   getAllUsahaKlengkeng,
 };

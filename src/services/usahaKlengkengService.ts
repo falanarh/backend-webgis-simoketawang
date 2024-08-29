@@ -249,6 +249,54 @@ const deleteUsahaKlengkeng = async (id: mongoose.Types.ObjectId) => {
   }
 };
 
+const deleteManyUsahaKlengkeng = async (ids: string[]) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    if (!Array.isArray(ids)) {
+      throw new Error("The request body must be an array.");
+    }
+
+    if (ids.includes("all")) {
+      // Handle deletion of all entries
+      await UsahaKlengkeng.deleteMany({}).session(session);
+    } else {
+      const validIds = ids.filter(id => mongoose.Types.ObjectId.isValid(id));
+      if (validIds.length === 0) {
+        throw new Error("No valid IDs provided.");
+      }
+
+      const objectIds = validIds.map(id => new mongoose.Types.ObjectId(id));
+      const result = await UsahaKlengkeng.deleteMany({ _id: { $in: objectIds } }).session(session);
+
+      if (result.deletedCount === 0) {
+        throw new Error("No UsahaKlengkeng found with the provided IDs.");
+      }
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    // Update aggregate SLS after deletion
+    await updateAllSlsAggregates();
+
+    return { deletedCount: ids.length };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    // Logging errors
+    if (error instanceof Error) {
+      console.error(`Failed to delete usaha klengkeng: ${error.message}`);
+      throw new Error(`Failed to delete usaha klengkeng: ${error.message}`);
+    } else {
+      console.error("Failed to delete usaha klengkeng: Unknown error");
+      throw new Error("Failed to delete usaha klengkeng: Unknown error");
+    }
+  }
+};
+
 const getUsahaKlengkengByKode = async (kode: string) => {
   const usahaKlengkeng = await UsahaKlengkeng.findOne({ kode });
   if (!usahaKlengkeng) {
@@ -265,6 +313,7 @@ export default {
   addUsahaKlengkeng,
   updateUsahaKlengkeng,
   deleteUsahaKlengkeng,
+  deleteManyUsahaKlengkeng,
   getUsahaKlengkengByKode,
   getAllUsahaKlengkeng,
 };

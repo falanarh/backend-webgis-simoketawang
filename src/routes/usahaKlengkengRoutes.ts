@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post("/", authMiddleware, usahaKlengkengController.addUsahaKlengkeng);
 router.put("/:id", authMiddleware, usahaKlengkengController.updateUsahaKlengkeng);
+router.delete("/many", authMiddleware, usahaKlengkengController.deleteManyUsahaKlengkeng);
 router.delete("/:id", authMiddleware, usahaKlengkengController.deleteUsahaKlengkeng);
 router.get("/:kode", authMiddleware, usahaKlengkengController.getUsahaKlengkengByKode);
 router.get("/", usahaKlengkengController.getAllUsahaKlengkeng);
