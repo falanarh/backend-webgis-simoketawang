@@ -249,6 +249,30 @@ const deleteUsahaKlengkeng = async (id: mongoose.Types.ObjectId) => {
   }
 };
 
+const generateNextCode = async (kodeSls: string): Promise<string> => {
+  const latestEntry = await UsahaKlengkeng.findOne({ kodeSls })
+    .sort({ kode: -1 }) // Sort in descending order to get the latest entry
+    .exec();
+  
+  if (latestEntry) {
+    const latestCode = latestEntry.kode;
+    const sequenceNumber = parseInt(latestCode.slice(-3), 10) + 1;
+    return `${kodeSls}${sequenceNumber.toString().padStart(3, '0')}`;
+  } else {
+    return `${kodeSls}001`; // Starting code if no previous entries exist
+  }
+};
+
+const updateKode = async (kodeSls: string) => {
+  const entries = await UsahaKlengkeng.find({ kodeSls }).sort({ kode: 1 }).exec();
+  
+  for (const [index, entry] of entries.entries()) {
+    const newCode = `${kodeSls}${(index + 1).toString().padStart(3, '0')}`;
+    entry.kode = newCode;
+    await entry.save();
+  }
+};
+
 const deleteManyUsahaKlengkeng = async (ids: string[]) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -258,8 +282,12 @@ const deleteManyUsahaKlengkeng = async (ids: string[]) => {
       throw new Error("The request body must be an array.");
     }
 
+    let kodeSlsList: string[] = [];
+
     if (ids.includes("all")) {
       // Handle deletion of all entries
+      const allEntries = await UsahaKlengkeng.find({});
+      kodeSlsList = [...new Set(allEntries.map(entry => entry.kodeSls))];
       await UsahaKlengkeng.deleteMany({}).session(session);
     } else {
       const validIds = ids.filter(id => mongoose.Types.ObjectId.isValid(id));
@@ -268,6 +296,8 @@ const deleteManyUsahaKlengkeng = async (ids: string[]) => {
       }
 
       const objectIds = validIds.map(id => new mongoose.Types.ObjectId(id));
+      const deletedEntries = await UsahaKlengkeng.find({ _id: { $in: objectIds } }).session(session);
+      kodeSlsList = [...new Set(deletedEntries.map(entry => entry.kodeSls))];
       const result = await UsahaKlengkeng.deleteMany({ _id: { $in: objectIds } }).session(session);
 
       if (result.deletedCount === 0) {
@@ -280,6 +310,11 @@ const deleteManyUsahaKlengkeng = async (ids: string[]) => {
 
     // Update aggregate SLS after deletion
     await updateAllSlsAggregates();
+
+    // Reorder codes for all affected `kodeSls`
+    for (const kodeSls of kodeSlsList) {
+      await updateKode(kodeSls);
+    }
 
     return { deletedCount: ids.length };
   } catch (error) {
