@@ -8,7 +8,7 @@ import rumahTanggaRoutes from "./routes/rumahTanggaRoutes";
 import authRoutes from "./routes/authRoutes";
 import slsRoutes from "./routes/slsRoutes";
 import usahaKlengkengRoutes from "./routes/usahaKlengkengRoutes";
-import uploadRoutes from './routes/uploadRoutes';
+import uploadRoutes from "./routes/uploadRoutes";
 
 const cors = require("cors");
 
@@ -26,19 +26,25 @@ app.use(morgan("dev"));
 //   })
 // );
 
-app.use(cors({
-  origin: ['https://desa-cantik-sda.vercel.app', 'http://localhost:5173'], // Ganti dengan domain Anda
-  // origin: "https://desa-cantik-sda.vercel.app",
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Metode yang diizinkan
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: [
+      "https://desa-cantik-sda.vercel.app",
+      "http://localhost:5173",
+      "http://desacantik.pahlawan140.com",
+    ], // Ganti dengan domain Anda
+    // origin: "https://desa-cantik-sda.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE"], // Metode yang diizinkan
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
 // app.use(bodyParser.json());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/sls", slsRoutes)
+app.use("/api/sls", slsRoutes);
 app.use("/api/usahaKlengkeng", usahaKlengkengRoutes);
-app.use('/api/photo', uploadRoutes);
+app.use("/api/photo", uploadRoutes);
 
 export default app;

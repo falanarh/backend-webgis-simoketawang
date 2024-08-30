@@ -25,7 +25,10 @@ async function updateAllSlsAggregates(): Promise<void> {
                 jenis_pupuk: "$jenis_pupuk",
                 pemanfaatan_produk: "$pemanfaatan_produk"
               }
-            }
+            },
+            totalPohon: { $sum: "$jml_pohon" },
+            totalPohonBlmBerproduksi: { $sum: "$jml_pohon_blm_berproduksi" },
+            totalPohonSdhBerproduksi: { $sum: "$jml_pohon_sdh_berproduksi" }
           }
         },
         {
@@ -93,7 +96,10 @@ async function updateAllSlsAggregates(): Promise<void> {
                   }
                 }
               }
-            }
+            },
+            totalPohon: 1,
+            totalPohonBlmBerproduksi: 1,
+            totalPohonSdhBerproduksi: 1
           }
         }
       ]);
@@ -119,7 +125,10 @@ async function updateAllSlsAggregates(): Promise<void> {
           batik_ecoprint: 0,
           minuman: 0,
           makanan: 0
-        }
+        },
+        totalPohon: 0,
+        totalPohonBlmBerproduksi: 0,
+        totalPohonSdhBerproduksi: 0
       };
 
       // Update data agregat di koleksi Sls
@@ -140,7 +149,10 @@ async function updateAllSlsAggregates(): Promise<void> {
             "geojson.features.$.properties.jml_unit_usaha_klengkeng_kerajinan_tangan": aggregatedData.pemanfaatanProdukCounts.kerajinan_tangan,
             "geojson.features.$.properties.jml_unit_usaha_klengkeng_batik_ecoprint": aggregatedData.pemanfaatanProdukCounts.batik_ecoprint,
             "geojson.features.$.properties.jml_unit_usaha_klengkeng_minuman": aggregatedData.pemanfaatanProdukCounts.minuman,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_makanan": aggregatedData.pemanfaatanProdukCounts.makanan
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_makanan": aggregatedData.pemanfaatanProdukCounts.makanan,
+            "geojson.features.$.properties.jml_pohon": aggregatedData.totalPohon,
+            "geojson.features.$.properties.jml_pohon_blm_berproduksi": aggregatedData.totalPohonBlmBerproduksi,
+            "geojson.features.$.properties.jml_pohon_sdh_berproduksi": aggregatedData.totalPohonSdhBerproduksi
           },
         },
         { arrayFilters: [{ "elem.properties.kode": slsKode }] }
