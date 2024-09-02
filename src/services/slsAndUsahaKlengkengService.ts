@@ -215,4 +215,4 @@ async function updateAllSlsAggregates(): Promise<void> {
   }
 }
 
-updateAllSlsAggregates();
+export default updateAllSlsAggregates;
