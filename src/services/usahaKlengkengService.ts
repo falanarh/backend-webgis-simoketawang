@@ -12,6 +12,7 @@ const VALID_PEMANFAATAN_PRODUK = [
   "batik_ecoprint",
   "minuman",
   "makanan",
+  "tidak_dimanfaatkan",
 ];
 
 const validateUsahaKlengkengData = (data: IUsahaKlengkeng) => {
