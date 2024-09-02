@@ -30,11 +30,6 @@ interface IGeoJSONFeature extends Document {
     label: string;
     jml_penduduk: number;
     jml_unit_usaha_klengkeng: number;
-    jml_unit_usaha_klengkeng_new_crystal: number;
-    jml_unit_usaha_klengkeng_pingpong: number;
-    jml_unit_usaha_klengkeng_matalada: number;
-    jml_unit_usaha_klengkeng_diamond_river: number;
-    jml_unit_usaha_klengkeng_merah: number;
     jml_unit_usaha_klengkeng_pupuk_organik: number;
     jml_unit_usaha_klengkeng_pupuk_anorganik: number;
     jml_unit_usaha_klengkeng_tidak_ada_pupuk: number;
@@ -43,9 +38,16 @@ interface IGeoJSONFeature extends Document {
     jml_unit_usaha_klengkeng_batik_ecoprint: number;
     jml_unit_usaha_klengkeng_minuman: number;
     jml_unit_usaha_klengkeng_makanan: number;
+    jml_unit_usaha_klengkeng_tidak_dimanfaatkan: number;
     jml_pohon: number;
+    jml_pohon_new_crystal: number;
+    jml_pohon_pingpong: number;
+    jml_pohon_metalada: number;
+    jml_pohon_diamond_river: number;
+    jml_pohon_merah: number;
     jml_pohon_blm_berproduksi: number;
     jml_pohon_sdh_berproduksi: number;
+    volume_produksi: number;
     [key: string]: any; // Untuk properti tambahan lainnya
   };
 }
@@ -103,11 +105,6 @@ const GeoJSONFeatureSchema: Schema = new Schema({
     label: { type: String, required: true },
     jml_penduduk: { type: Number, required: true },
     jml_unit_usaha_klengkeng: { type: Number, required: true },
-    jml_unit_usaha_klengkeng_new_crystal: { type: Number, required: true },
-    jml_unit_usaha_klengkeng_pingpong: { type: Number, required: true },
-    jml_unit_usaha_klengkeng_matalada: { type: Number, required: true },
-    jml_unit_usaha_klengkeng_diamond_river: { type: Number, required: true },
-    jml_unit_usaha_klengkeng_merah: { type: Number, required: true },
     jml_unit_usaha_klengkeng_pupuk_organik: { type: Number, required: true },
     jml_unit_usaha_klengkeng_pupuk_anorganik: { type: Number, required: true },
     jml_unit_usaha_klengkeng_tidak_ada_pupuk: { type: Number, required: true },
@@ -119,9 +116,16 @@ const GeoJSONFeatureSchema: Schema = new Schema({
     jml_unit_usaha_klengkeng_batik_ecoprint: { type: Number, required: true },
     jml_unit_usaha_klengkeng_minuman: { type: Number, required: true },
     jml_unit_usaha_klengkeng_makanan: { type: Number, required: true },
+    jml_unit_usaha_klengkeng_tidak_dimanfaatkan: { type: Number, required: true },
     jml_pohon: { type: Number, required: true },
+    jml_pohon_new_crystal: { type: Number, required: true },
+    jml_pohon_pingpong: { type: Number, required: true },
+    jml_pohon_metalada: { type: Number, required: true },
+    jml_pohon_diamond_river: { type: Number, required: true },
+    jml_pohon_merah: { type: Number, required: true },
     jml_pohon_blm_berproduksi: { type: Number, required: true },
     jml_pohon_sdh_berproduksi: { type: Number, required: true },
+    volume_produksi: { type: Number, required: true },
   },
 });
 

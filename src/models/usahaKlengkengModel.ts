@@ -8,22 +8,21 @@ interface IUsahaKlengkeng extends Document {
   alamat: string;
   latitude: string;
   longitude: string;
-  jenis_klengkeng:
-    | "new_crystal"
-    | "pingpong"
-    | "matalada"
-    | "diamond_river"
-    | "merah";
-  usia_pohon: number;
-  jenis_pupuk: "organik" | "anorganik" | "tidak_ada_pupuk";
-  frekuensi_berbuah: number;
-  rata2_volume_produksi_per_panen: number;
+  jml_pohon: number;
+  jml_pohon_new_crystal: number;
+  jml_pohon_pingpong: number;
+  jml_pohon_metalada: number;
+  jml_pohon_diamond_river: number;
+  jml_pohon_merah: number;
+  jenis_pupuk: ("organik" | "anorganik" | "tidak_ada_pupuk")[];
+  volume_produksi: number;
   pemanfaatan_produk: (
     | "kopi_biji_klengkeng"
     | "kerajinan_tangan"
     | "batik_ecoprint"
     | "minuman"
     | "makanan"
+    | "tidak_dimanfaatkan"
   )[];
   catatan: string;
   url_img: string;
@@ -37,19 +36,18 @@ const UsahaKlengkengSchema = new Schema<IUsahaKlengkeng>({
   alamat: { type: String, required: true },
   latitude: { type: String, required: true },
   longitude: { type: String, required: true },
-  jenis_klengkeng: {
-    type: String,
-    enum: ["new_crystal", "pingpong", "matalada", "diamond_river", "merah"],
-    required: true,
-  },
-  usia_pohon: { type: Number, required: true },
+  jml_pohon: { type: Number, required: true },
+  jml_pohon_new_crystal: { type: Number, required: true },
+  jml_pohon_pingpong: { type: Number, required: true },
+  jml_pohon_metalada: { type: Number, required: true },
+  jml_pohon_diamond_river: { type: Number, required: true },
+  jml_pohon_merah: { type: Number, required: true },
   jenis_pupuk: {
-    type: String,
+    type: [String],
     enum: ["organik", "anorganik", "tidak_ada_pupuk"],
     required: true,
   },
-  frekuensi_berbuah: { type: Number, required: true },
-  rata2_volume_produksi_per_panen: { type: Number, required: true },
+  volume_produksi: { type: Number, required: true },
   pemanfaatan_produk: {
     type: [String],
     enum: [
@@ -58,6 +56,7 @@ const UsahaKlengkengSchema = new Schema<IUsahaKlengkeng>({
       "batik_ecoprint",
       "minuman",
       "makanan",
+      "tidak_dimanfaatkan",
     ],
     required: true,
   },

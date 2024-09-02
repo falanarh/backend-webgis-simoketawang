@@ -4,14 +4,6 @@ import UsahaKlengkeng from "../models/usahaKlengkengModel";
 import mongoose from "mongoose";
 import updateAllSlsAggregates from "./slsAndUsahaKlengkengService";
 
-const VALID_JENIS_KLENGKENG = [
-  "new_crystal",
-  "pingpong",
-  "matalada",
-  "diamond_river",
-  "merah",
-];
-
 const VALID_JENIS_PUPUK = ["organik", "anorganik", "tidak_ada_pupuk"];
 
 const VALID_PEMANFAATAN_PRODUK = [
@@ -23,16 +15,12 @@ const VALID_PEMANFAATAN_PRODUK = [
 ];
 
 const validateUsahaKlengkengData = (data: IUsahaKlengkeng) => {
-  if (!VALID_JENIS_KLENGKENG.includes(data.jenis_klengkeng)) {
-    throw new Error(
-      `Jenis klengkeng tidak valid. Nilai valid: 'new_crystal', 'pingpong', 'matalada', 'diamond_river', 'merah'.`
-    );
-  }
-
-  if (!VALID_JENIS_PUPUK.includes(data.jenis_pupuk)) {
-    throw new Error(
-      `Jenis pupuk tidak valid. Nilai valid: 'organik', 'anorganik', 'tidak_ada_pupuk'.`
-    );
+  for (const pupuk of data.jenis_pupuk) {
+    if (!VALID_JENIS_PUPUK.includes(pupuk)) {
+      throw new Error(
+        `Jenis pupuk tidak valid. Nilai valid: 'organik', 'anorganik', 'tidak_ada_pupuk'.`
+      );
+    }
   }
 
   for (const produk of data.pemanfaatan_produk) {
@@ -43,6 +31,14 @@ const validateUsahaKlengkengData = (data: IUsahaKlengkeng) => {
         )}.`
       );
     }
+  }
+  
+  const totalPohon = data.jml_pohon_new_crystal + data.jml_pohon_pingpong + data.jml_pohon_metalada + data.jml_pohon_diamond_river + data.jml_pohon_merah;
+
+  if (totalPohon !== data.jml_pohon) {
+    throw new Error(
+      `Jumlah pohon tidak sesuai. Total pohon (${totalPohon}) harus sama dengan jml_pohon (${data.jml_pohon}).`
+    );
   }
 };
 
@@ -253,21 +249,23 @@ const generateNextCode = async (kodeSls: string): Promise<string> => {
   const latestEntry = await UsahaKlengkeng.findOne({ kodeSls })
     .sort({ kode: -1 }) // Sort in descending order to get the latest entry
     .exec();
-  
+
   if (latestEntry) {
     const latestCode = latestEntry.kode;
     const sequenceNumber = parseInt(latestCode.slice(-3), 10) + 1;
-    return `${kodeSls}${sequenceNumber.toString().padStart(3, '0')}`;
+    return `${kodeSls}${sequenceNumber.toString().padStart(3, "0")}`;
   } else {
     return `${kodeSls}001`; // Starting code if no previous entries exist
   }
 };
 
 const updateKode = async (kodeSls: string) => {
-  const entries = await UsahaKlengkeng.find({ kodeSls }).sort({ kode: 1 }).exec();
-  
+  const entries = await UsahaKlengkeng.find({ kodeSls })
+    .sort({ kode: 1 })
+    .exec();
+
   for (const [index, entry] of entries.entries()) {
-    const newCode = `${kodeSls}${(index + 1).toString().padStart(3, '0')}`;
+    const newCode = `${kodeSls}${(index + 1).toString().padStart(3, "0")}`;
     entry.kode = newCode;
     await entry.save();
   }
@@ -287,18 +285,22 @@ const deleteManyUsahaKlengkeng = async (ids: string[]) => {
     if (ids.includes("all")) {
       // Handle deletion of all entries
       const allEntries = await UsahaKlengkeng.find({});
-      kodeSlsList = [...new Set(allEntries.map(entry => entry.kodeSls))];
+      kodeSlsList = [...new Set(allEntries.map((entry) => entry.kodeSls))];
       await UsahaKlengkeng.deleteMany({}).session(session);
     } else {
-      const validIds = ids.filter(id => mongoose.Types.ObjectId.isValid(id));
+      const validIds = ids.filter((id) => mongoose.Types.ObjectId.isValid(id));
       if (validIds.length === 0) {
         throw new Error("No valid IDs provided.");
       }
 
-      const objectIds = validIds.map(id => new mongoose.Types.ObjectId(id));
-      const deletedEntries = await UsahaKlengkeng.find({ _id: { $in: objectIds } }).session(session);
-      kodeSlsList = [...new Set(deletedEntries.map(entry => entry.kodeSls))];
-      const result = await UsahaKlengkeng.deleteMany({ _id: { $in: objectIds } }).session(session);
+      const objectIds = validIds.map((id) => new mongoose.Types.ObjectId(id));
+      const deletedEntries = await UsahaKlengkeng.find({
+        _id: { $in: objectIds },
+      }).session(session);
+      kodeSlsList = [...new Set(deletedEntries.map((entry) => entry.kodeSls))];
+      const result = await UsahaKlengkeng.deleteMany({
+        _id: { $in: objectIds },
+      }).session(session);
 
       if (result.deletedCount === 0) {
         throw new Error("No UsahaKlengkeng found with the provided IDs.");
