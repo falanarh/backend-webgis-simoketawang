@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose from "mongoose";
 import usahaKlengkengModel from "../models/usahaKlengkengModel";
 import slsModel from "../models/slsModel";
 
@@ -13,7 +13,9 @@ async function updateAllSlsAggregates(): Promise<void> {
 
       // Agregasi data dari koleksi UsahaKlengkeng untuk kode SLS saat ini
       const aggregationResult = await usahaKlengkengModel.aggregate([
-        { $match: { kodeSls: slsKode } },
+        {
+          $match: { kodeSls: slsKode },
+        },
         {
           $group: {
             _id: "$kodeSls",
@@ -27,7 +29,7 @@ async function updateAllSlsAggregates(): Promise<void> {
             totalPohonBlmBerproduksi: { $sum: "$jml_pohon_blm_berproduksi" },
             totalPohonSdhBerproduksi: { $sum: "$jml_pohon_sdh_berproduksi" },
             totalVolumeProduksi: { $sum: "$volume_produksi" },
-            jenisPupuk: { $addToSet: "$jenis_pupuk" },
+            jenisPupuk: { $push: "$jenis_pupuk" },
             pemanfaatanProduk: { $push: "$pemanfaatan_produk" },
           },
         },
@@ -45,113 +47,17 @@ async function updateAllSlsAggregates(): Promise<void> {
             totalPohonSdhBerproduksi: 1,
             totalVolumeProduksi: 1,
             jenisPupukCounts: {
-              organik: {
-                $size: {
-                  $filter: {
-                    input: { $arrayElemAt: ["$jenisPupuk", 0] },
-                    as: "pupuk",
-                    cond: { $eq: ["$$pupuk", "organik"] },
-                  },
-                },
-              },
-              anorganik: {
-                $size: {
-                  $filter: {
-                    input: { $arrayElemAt: ["$jenisPupuk", 0] },
-                    as: "pupuk",
-                    cond: { $eq: ["$$pupuk", "anorganik"] },
-                  },
-                },
-              },
-              tidak_ada_pupuk: {
-                $size: {
-                  $filter: {
-                    input: { $arrayElemAt: ["$jenisPupuk", 0] },
-                    as: "pupuk",
-                    cond: { $eq: ["$$pupuk", "tidak_ada_pupuk"] },
-                  },
-                },
-              },
+              organik: { $size: { $filter: { input: { $arrayElemAt: ["$jenisPupuk", 0] }, cond: { $eq: ["$$this", "organik"] } } } },
+              anorganik: { $size: { $filter: { input: { $arrayElemAt: ["$jenisPupuk", 0] }, cond: { $eq: ["$$this", "anorganik"] } } } },
+              tidak_ada_pupuk: { $size: { $filter: { input: { $arrayElemAt: ["$jenisPupuk", 0] }, cond: { $eq: ["$$this", "tidak_ada_pupuk"] } } } },
             },
             pemanfaatanProdukCounts: {
-              kopi_biji_klengkeng: {
-                $size: {
-                  $filter: {
-                    input: { $reduce: {
-                      input: "$pemanfaatanProduk",
-                      initialValue: [],
-                      in: { $concatArrays: ["$$value", "$$this"] }
-                    }},
-                    as: "produk",
-                    cond: { $eq: ["$$produk", "kopi_biji_klengkeng"] },
-                  },
-                },
-              },
-              kerajinan_tangan: {
-                $size: {
-                  $filter: {
-                    input: { $reduce: {
-                      input: "$pemanfaatanProduk",
-                      initialValue: [],
-                      in: { $concatArrays: ["$$value", "$$this"] }
-                    }},
-                    as: "produk",
-                    cond: { $eq: ["$$produk", "kerajinan_tangan"] },
-                  },
-                },
-              },
-              batik_ecoprint: {
-                $size: {
-                  $filter: {
-                    input: { $reduce: {
-                      input: "$pemanfaatanProduk",
-                      initialValue: [],
-                      in: { $concatArrays: ["$$value", "$$this"] }
-                    }},
-                    as: "produk",
-                    cond: { $eq: ["$$produk", "batik_ecoprint"] },
-                  },
-                },
-              },
-              minuman: {
-                $size: {
-                  $filter: {
-                    input: { $reduce: {
-                      input: "$pemanfaatanProduk",
-                      initialValue: [],
-                      in: { $concatArrays: ["$$value", "$$this"] }
-                    }},
-                    as: "produk",
-                    cond: { $eq: ["$$produk", "minuman"] },
-                  },
-                },
-              },
-              makanan: {
-                $size: {
-                  $filter: {
-                    input: { $reduce: {
-                      input: "$pemanfaatanProduk",
-                      initialValue: [],
-                      in: { $concatArrays: ["$$value", "$$this"] }
-                    }},
-                    as: "produk",
-                    cond: { $eq: ["$$produk", "makanan"] },
-                  },
-                },
-              },
-              tidak_dimanfaatkan: {
-                $size: {
-                  $filter: {
-                    input: { $reduce: {
-                      input: "$pemanfaatanProduk",
-                      initialValue: [],
-                      in: { $concatArrays: ["$$value", "$$this"] }
-                    }},
-                    as: "produk",
-                    cond: { $eq: ["$$produk", "tidak_dimanfaatkan"] },
-                  },
-                },
-              },
+              kopi_biji_klengkeng: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "kopi_biji_klengkeng"] } } } },
+              kerajinan_tangan: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "kerajinan_tangan"] } } } },
+              batik_ecoprint: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "batik_ecoprint"] } } } },
+              minuman: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "minuman"] } } } },
+              makanan: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "makanan"] } } } },
+              tidak_dimanfaatkan: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "tidak_dimanfaatkan"] } } } },
             },
           },
         },
@@ -197,21 +103,23 @@ async function updateAllSlsAggregates(): Promise<void> {
             "geojson.features.$.properties.jml_pohon_sdh_berproduksi": aggregatedData.totalPohonSdhBerproduksi,
             "geojson.features.$.properties.volume_produksi": aggregatedData.totalVolumeProduksi,
             "geojson.features.$.properties.jml_unit_usaha_klengkeng": aggregatedData.totalUsaha,
-            "geojson.features.$.properties.jenis_pupuk_organik": aggregatedData.jenisPupukCounts.organik,
-            "geojson.features.$.properties.jenis_pupuk_anorganik": aggregatedData.jenisPupukCounts.anorganik,
-            "geojson.features.$.properties.jenis_pupuk_tidak_ada_pupuk": aggregatedData.jenisPupukCounts.tidak_ada_pupuk,
-            "geojson.features.$.properties.pemanfaatan_produk_kopi_biji_klengkeng": aggregatedData.pemanfaatanProdukCounts.kopi_biji_klengkeng,
-            "geojson.features.$.properties.pemanfaatan_produk_kerajinan_tangan": aggregatedData.pemanfaatanProdukCounts.kerajinan_tangan,
-            "geojson.features.$.properties.pemanfaatan_produk_batik_ecoprint": aggregatedData.pemanfaatanProdukCounts.batik_ecoprint,
-            "geojson.features.$.properties.pemanfaatan_produk_minuman": aggregatedData.pemanfaatanProdukCounts.minuman,
-            "geojson.features.$.properties.pemanfaatan_produk_makanan": aggregatedData.pemanfaatanProdukCounts.makanan,
-            "geojson.features.$.properties.pemanfaatan_produk_tidak_dimanfaatkan": aggregatedData.pemanfaatanProdukCounts.tidak_dimanfaatkan,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pupuk_organik": aggregatedData.jenisPupukCounts.organik,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pupuk_anorganik": aggregatedData.jenisPupukCounts.anorganik,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_tidak_ada_pupuk": aggregatedData.jenisPupukCounts.tidak_ada_pupuk,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_kopi_biji_klengkeng": aggregatedData.pemanfaatanProdukCounts.kopi_biji_klengkeng,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_kerajinan_tangan": aggregatedData.pemanfaatanProdukCounts.kerajinan_tangan,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_batik_ecoprint": aggregatedData.pemanfaatanProdukCounts.batik_ecoprint,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_minuman": aggregatedData.pemanfaatanProdukCounts.minuman,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_makanan": aggregatedData.pemanfaatanProdukCounts.makanan,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_tidak_dimanfaatkan": aggregatedData.pemanfaatanProdukCounts.tidak_dimanfaatkan,
           },
         }
       );
     }
+
+    console.log("Agregasi SLS berhasil diperbarui.");
   } catch (error) {
-    console.error("Error updating SLS aggregates:", error);
+    console.error("Terjadi kesalahan saat memperbarui agregasi SLS:", error);
   }
 }
 
