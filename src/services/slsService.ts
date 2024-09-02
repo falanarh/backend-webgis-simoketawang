@@ -160,11 +160,6 @@ const calculateTotals = async () => {
   const totals = {
     jml_penduduk: 0,
     jml_unit_usaha_klengkeng: 0,
-    jml_unit_usaha_klengkeng_new_crystal: 0,
-    jml_unit_usaha_klengkeng_pingpong: 0,
-    jml_unit_usaha_klengkeng_matalada: 0,
-    jml_unit_usaha_klengkeng_diamond_river: 0,
-    jml_unit_usaha_klengkeng_merah: 0,
     jml_unit_usaha_klengkeng_pupuk_organik: 0,
     jml_unit_usaha_klengkeng_pupuk_anorganik: 0,
     jml_unit_usaha_klengkeng_tidak_ada_pupuk: 0,
@@ -173,50 +168,50 @@ const calculateTotals = async () => {
     jml_unit_usaha_klengkeng_batik_ecoprint: 0,
     jml_unit_usaha_klengkeng_minuman: 0,
     jml_unit_usaha_klengkeng_makanan: 0,
+    jml_unit_usaha_klengkeng_tidak_dimanfaatkan: 0,
     jml_pohon: 0,
+    jml_pohon_new_crystal: 0,
+    jml_pohon_pingpong: 0,
+    jml_pohon_metalada: 0,
+    jml_pohon_diamond_river: 0,
+    jml_pohon_merah: 0,
     jml_pohon_blm_berproduksi: 0,
     jml_pohon_sdh_berproduksi: 0,
+    volume_produksi: 0,
   };
 
   slsList.forEach((sls) => {
     const { features } = sls.geojson;
     if (features && features.length > 0) {
       const { properties } = features[0];
-      totals.jml_penduduk += properties.jml_penduduk;
-      totals.jml_unit_usaha_klengkeng += properties.jml_unit_usaha_klengkeng;
-      totals.jml_unit_usaha_klengkeng_new_crystal +=
-        properties.jml_unit_usaha_klengkeng_new_crystal;
-      totals.jml_unit_usaha_klengkeng_pingpong +=
-        properties.jml_unit_usaha_klengkeng_pingpong;
-      totals.jml_unit_usaha_klengkeng_matalada +=
-        properties.jml_unit_usaha_klengkeng_matalada;
-      totals.jml_unit_usaha_klengkeng_diamond_river +=
-        properties.jml_unit_usaha_klengkeng_diamond_river;
-      totals.jml_unit_usaha_klengkeng_merah +=
-        properties.jml_unit_usaha_klengkeng_merah;
-      totals.jml_unit_usaha_klengkeng_pupuk_organik +=
-        properties.jml_unit_usaha_klengkeng_pupuk_organik;
-      totals.jml_unit_usaha_klengkeng_pupuk_anorganik +=
-        properties.jml_unit_usaha_klengkeng_pupuk_anorganik;
-      totals.jml_unit_usaha_klengkeng_tidak_ada_pupuk +=
-        properties.jml_unit_usaha_klengkeng_tidak_ada_pupuk;
-      totals.jml_unit_usaha_klengkeng_kopi_biji_klengkeng +=
-        properties.jml_unit_usaha_klengkeng_kopi_biji_klengkeng;
-      totals.jml_unit_usaha_klengkeng_kerajinan_tangan +=
-        properties.jml_unit_usaha_klengkeng_kerajinan_tangan;
-      totals.jml_unit_usaha_klengkeng_batik_ecoprint +=
-        properties.jml_unit_usaha_klengkeng_batik_ecoprint;
-      totals.jml_unit_usaha_klengkeng_minuman +=
-        properties.jml_unit_usaha_klengkeng_minuman;
-      totals.jml_unit_usaha_klengkeng_makanan +=
-        properties.jml_unit_usaha_klengkeng_makanan;
-      totals.jml_pohon += properties.jml_pohon;
-      totals.jml_pohon_blm_berproduksi += properties.jml_pohon_blm_berproduksi;
-      totals.jml_pohon_sdh_berproduksi += properties.jml_pohon_sdh_berproduksi;
+      
+      // Safely add values to totals, defaulting to 0 if the property is not defined
+      totals.jml_penduduk += properties.jml_penduduk || 0;
+      totals.jml_unit_usaha_klengkeng += properties.jml_unit_usaha_klengkeng || 0;
+      totals.jml_unit_usaha_klengkeng_pupuk_organik += properties.jml_unit_usaha_klengkeng_pupuk_organik || 0;
+      totals.jml_unit_usaha_klengkeng_pupuk_anorganik += properties.jml_unit_usaha_klengkeng_pupuk_anorganik || 0;
+      totals.jml_unit_usaha_klengkeng_tidak_ada_pupuk += properties.jml_unit_usaha_klengkeng_tidak_ada_pupuk || 0;
+      totals.jml_unit_usaha_klengkeng_kopi_biji_klengkeng += properties.jml_unit_usaha_klengkeng_kopi_biji_klengkeng || 0;
+      totals.jml_unit_usaha_klengkeng_kerajinan_tangan += properties.jml_unit_usaha_klengkeng_kerajinan_tangan || 0;
+      totals.jml_unit_usaha_klengkeng_batik_ecoprint += properties.jml_unit_usaha_klengkeng_batik_ecoprint || 0;
+      totals.jml_unit_usaha_klengkeng_minuman += properties.jml_unit_usaha_klengkeng_minuman || 0;
+      totals.jml_unit_usaha_klengkeng_makanan += properties.jml_unit_usaha_klengkeng_makanan || 0;
+      totals.jml_unit_usaha_klengkeng_tidak_dimanfaatkan += properties.jml_unit_usaha_klengkeng_tidak_dimanfaatkan || 0;
+      totals.jml_pohon += properties.jml_pohon || 0;
+      totals.jml_pohon_new_crystal += properties.jml_pohon_new_crystal || 0;
+      totals.jml_pohon_pingpong += properties.jml_pohon_pingpong || 0;
+      totals.jml_pohon_metalada += properties.jml_pohon_metalada || 0;
+      totals.jml_pohon_diamond_river += properties.jml_pohon_diamond_river || 0;
+      totals.jml_pohon_merah += properties.jml_pohon_merah || 0;
+      totals.jml_pohon_blm_berproduksi += properties.jml_pohon_blm_berproduksi || 0;
+      totals.jml_pohon_sdh_berproduksi += properties.jml_pohon_sdh_berproduksi || 0;
+      totals.volume_produksi += properties.volume_produksi || 0;
     }
   });
+
   return totals;
 };
+
 
 export default {
   getAllSls,
