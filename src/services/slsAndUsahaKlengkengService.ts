@@ -13,9 +13,7 @@ async function updateAllSlsAggregates(): Promise<void> {
 
       // Agregasi data dari koleksi UsahaKlengkeng untuk kode SLS saat ini
       const aggregationResult = await usahaKlengkengModel.aggregate([
-        {
-          $match: { kodeSls: slsKode },
-        },
+        { $match: { kodeSls: slsKode } },
         {
           $group: {
             _id: "$kodeSls",
@@ -30,7 +28,7 @@ async function updateAllSlsAggregates(): Promise<void> {
             totalPohonSdhBerproduksi: { $sum: "$jml_pohon_sdh_berproduksi" },
             totalVolumeProduksi: { $sum: "$volume_produksi" },
             jenisPupuk: { $addToSet: "$jenis_pupuk" },
-            pemanfaatanProduk: { $addToSet: "$pemanfaatan_produk" },
+            pemanfaatanProduk: { $push: "$pemanfaatan_produk" },
           },
         },
         {
@@ -79,7 +77,11 @@ async function updateAllSlsAggregates(): Promise<void> {
               kopi_biji_klengkeng: {
                 $size: {
                   $filter: {
-                    input: { $arrayElemAt: ["$pemanfaatanProduk", 0] },
+                    input: { $reduce: {
+                      input: "$pemanfaatanProduk",
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this"] }
+                    }},
                     as: "produk",
                     cond: { $eq: ["$$produk", "kopi_biji_klengkeng"] },
                   },
@@ -88,7 +90,11 @@ async function updateAllSlsAggregates(): Promise<void> {
               kerajinan_tangan: {
                 $size: {
                   $filter: {
-                    input: { $arrayElemAt: ["$pemanfaatanProduk", 0] },
+                    input: { $reduce: {
+                      input: "$pemanfaatanProduk",
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this"] }
+                    }},
                     as: "produk",
                     cond: { $eq: ["$$produk", "kerajinan_tangan"] },
                   },
@@ -97,7 +103,11 @@ async function updateAllSlsAggregates(): Promise<void> {
               batik_ecoprint: {
                 $size: {
                   $filter: {
-                    input: { $arrayElemAt: ["$pemanfaatanProduk", 0] },
+                    input: { $reduce: {
+                      input: "$pemanfaatanProduk",
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this"] }
+                    }},
                     as: "produk",
                     cond: { $eq: ["$$produk", "batik_ecoprint"] },
                   },
@@ -106,7 +116,11 @@ async function updateAllSlsAggregates(): Promise<void> {
               minuman: {
                 $size: {
                   $filter: {
-                    input: { $arrayElemAt: ["$pemanfaatanProduk", 0] },
+                    input: { $reduce: {
+                      input: "$pemanfaatanProduk",
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this"] }
+                    }},
                     as: "produk",
                     cond: { $eq: ["$$produk", "minuman"] },
                   },
@@ -115,7 +129,11 @@ async function updateAllSlsAggregates(): Promise<void> {
               makanan: {
                 $size: {
                   $filter: {
-                    input: { $arrayElemAt: ["$pemanfaatanProduk", 0] },
+                    input: { $reduce: {
+                      input: "$pemanfaatanProduk",
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this"] }
+                    }},
                     as: "produk",
                     cond: { $eq: ["$$produk", "makanan"] },
                   },
@@ -124,7 +142,11 @@ async function updateAllSlsAggregates(): Promise<void> {
               tidak_dimanfaatkan: {
                 $size: {
                   $filter: {
-                    input: { $arrayElemAt: ["$pemanfaatanProduk", 0] },
+                    input: { $reduce: {
+                      input: "$pemanfaatanProduk",
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this"] }
+                    }},
                     as: "produk",
                     cond: { $eq: ["$$produk", "tidak_dimanfaatkan"] },
                   },
@@ -175,24 +197,22 @@ async function updateAllSlsAggregates(): Promise<void> {
             "geojson.features.$.properties.jml_pohon_sdh_berproduksi": aggregatedData.totalPohonSdhBerproduksi,
             "geojson.features.$.properties.volume_produksi": aggregatedData.totalVolumeProduksi,
             "geojson.features.$.properties.jml_unit_usaha_klengkeng": aggregatedData.totalUsaha,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pupuk_organik": aggregatedData.jenisPupukCounts.organik,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pupuk_anorganik": aggregatedData.jenisPupukCounts.anorganik,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_tidak_ada_pupuk": aggregatedData.jenisPupukCounts.tidak_ada_pupuk,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_kopi_biji_klengkeng": aggregatedData.pemanfaatanProdukCounts.kopi_biji_klengkeng,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_kerajinan_tangan": aggregatedData.pemanfaatanProdukCounts.kerajinan_tangan,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_batik_ecoprint": aggregatedData.pemanfaatanProdukCounts.batik_ecoprint,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_minuman": aggregatedData.pemanfaatanProdukCounts.minuman,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_makanan": aggregatedData.pemanfaatanProdukCounts.makanan,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_tidak_dimanfaatkan": aggregatedData.pemanfaatanProdukCounts.tidak_dimanfaatkan,
+            "geojson.features.$.properties.jenis_pupuk_organik": aggregatedData.jenisPupukCounts.organik,
+            "geojson.features.$.properties.jenis_pupuk_anorganik": aggregatedData.jenisPupukCounts.anorganik,
+            "geojson.features.$.properties.jenis_pupuk_tidak_ada_pupuk": aggregatedData.jenisPupukCounts.tidak_ada_pupuk,
+            "geojson.features.$.properties.pemanfaatan_produk_kopi_biji_klengkeng": aggregatedData.pemanfaatanProdukCounts.kopi_biji_klengkeng,
+            "geojson.features.$.properties.pemanfaatan_produk_kerajinan_tangan": aggregatedData.pemanfaatanProdukCounts.kerajinan_tangan,
+            "geojson.features.$.properties.pemanfaatan_produk_batik_ecoprint": aggregatedData.pemanfaatanProdukCounts.batik_ecoprint,
+            "geojson.features.$.properties.pemanfaatan_produk_minuman": aggregatedData.pemanfaatanProdukCounts.minuman,
+            "geojson.features.$.properties.pemanfaatan_produk_makanan": aggregatedData.pemanfaatanProdukCounts.makanan,
+            "geojson.features.$.properties.pemanfaatan_produk_tidak_dimanfaatkan": aggregatedData.pemanfaatanProdukCounts.tidak_dimanfaatkan,
           },
         }
       );
     }
-
-    console.log("Aggregasi dan update selesai.");
   } catch (error) {
-    console.error("Terjadi kesalahan saat melakukan agregasi dan update:", error);
+    console.error("Error updating SLS aggregates:", error);
   }
 }
 
-export default updateAllSlsAggregates;
+updateAllSlsAggregates();
