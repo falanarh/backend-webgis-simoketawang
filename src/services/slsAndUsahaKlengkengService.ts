@@ -18,7 +18,11 @@ async function updateAllSlsAggregates(): Promise<void> {
         },
         {
           $group: {
-            _id: "$kodeSls",
+            _id: {
+              kodeSls: "$kodeSls",
+              jenis_pupuk: "$jenis_pupuk",
+              pemanfaatan_produk: "$pemanfaatan_produk",
+            },
             totalUsaha: { $sum: 1 },
             totalPohon: { $sum: "$jml_pohon" },
             totalPohonNewCrystal: { $sum: "$jml_pohon_new_crystal" },
@@ -29,41 +33,12 @@ async function updateAllSlsAggregates(): Promise<void> {
             totalPohonBlmBerproduksi: { $sum: "$jml_pohon_blm_berproduksi" },
             totalPohonSdhBerproduksi: { $sum: "$jml_pohon_sdh_berproduksi" },
             totalVolumeProduksi: { $sum: "$volume_produksi" },
-            jenisPupuk: { $push: "$jenis_pupuk" },
-            pemanfaatanProduk: { $push: "$pemanfaatan_produk" },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            totalUsaha: 1,
-            totalPohon: 1,
-            totalPohonNewCrystal: 1,
-            totalPohonPingpong: 1,
-            totalPohonMetalada: 1,
-            totalPohonDiamondRiver: 1,
-            totalPohonMerah: 1,
-            totalPohonBlmBerproduksi: 1,
-            totalPohonSdhBerproduksi: 1,
-            totalVolumeProduksi: 1,
-            jenisPupukCounts: {
-              organik: { $size: { $filter: { input: { $arrayElemAt: ["$jenisPupuk", 0] }, cond: { $eq: ["$$this", "organik"] } } } },
-              anorganik: { $size: { $filter: { input: { $arrayElemAt: ["$jenisPupuk", 0] }, cond: { $eq: ["$$this", "anorganik"] } } } },
-              tidak_ada_pupuk: { $size: { $filter: { input: { $arrayElemAt: ["$jenisPupuk", 0] }, cond: { $eq: ["$$this", "tidak_ada_pupuk"] } } } },
-            },
-            pemanfaatanProdukCounts: {
-              kopi_biji_klengkeng: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "kopi_biji_klengkeng"] } } } },
-              kerajinan_tangan: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "kerajinan_tangan"] } } } },
-              batik_ecoprint: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "batik_ecoprint"] } } } },
-              minuman: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "minuman"] } } } },
-              makanan: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "makanan"] } } } },
-              tidak_dimanfaatkan: { $size: { $filter: { input: { $arrayElemAt: ["$pemanfaatanProduk", 0] }, cond: { $eq: ["$$this", "tidak_dimanfaatkan"] } } } },
-            },
           },
         },
       ]);
 
-      const aggregatedData = aggregationResult.length > 0 ? aggregationResult[0] : {
+      // Persiapan data akhir untuk update ke SLS
+      const aggregatedData = {
         totalUsaha: 0,
         totalPohon: 0,
         totalPohonNewCrystal: 0,
@@ -89,6 +64,51 @@ async function updateAllSlsAggregates(): Promise<void> {
         },
       };
 
+      for (const data of aggregationResult) {
+        aggregatedData.totalUsaha += data.totalUsaha;
+        aggregatedData.totalPohon += data.totalPohon;
+        aggregatedData.totalPohonNewCrystal += data.totalPohonNewCrystal;
+        aggregatedData.totalPohonPingpong += data.totalPohonPingpong;
+        aggregatedData.totalPohonMetalada += data.totalPohonMetalada;
+        aggregatedData.totalPohonDiamondRiver += data.totalPohonDiamondRiver;
+        aggregatedData.totalPohonMerah += data.totalPohonMerah;
+        aggregatedData.totalPohonBlmBerproduksi += data.totalPohonBlmBerproduksi;
+        aggregatedData.totalPohonSdhBerproduksi += data.totalPohonSdhBerproduksi;
+        aggregatedData.totalVolumeProduksi += data.totalVolumeProduksi;
+
+        // Hitung jenis pupuk
+        if (data._id.jenis_pupuk.includes("organik")) {
+          aggregatedData.jenisPupukCounts.organik++;
+        }
+        if (data._id.jenis_pupuk.includes("anorganik")) {
+          aggregatedData.jenisPupukCounts.anorganik++;
+        }
+        if (data._id.jenis_pupuk.includes("tidak_ada_pupuk")) {
+          aggregatedData.jenisPupukCounts.tidak_ada_pupuk++;
+        }
+
+        // Hitung pemanfaatan produk
+        if (data._id.pemanfaatan_produk.includes("kopi_biji_klengkeng")) {
+          aggregatedData.pemanfaatanProdukCounts.kopi_biji_klengkeng++;
+        }
+        if (data._id.pemanfaatan_produk.includes("kerajinan_tangan")) {
+          aggregatedData.pemanfaatanProdukCounts.kerajinan_tangan++;
+        }
+        if (data._id.pemanfaatan_produk.includes("batik_ecoprint")) {
+          aggregatedData.pemanfaatanProdukCounts.batik_ecoprint++;
+        }
+        if (data._id.pemanfaatan_produk.includes("minuman")) {
+          aggregatedData.pemanfaatanProdukCounts.minuman++;
+        }
+        if (data._id.pemanfaatan_produk.includes("makanan")) {
+          aggregatedData.pemanfaatanProdukCounts.makanan++;
+        }
+        if (data._id.pemanfaatan_produk.includes("tidak_dimanfaatkan")) {
+          aggregatedData.pemanfaatanProdukCounts.tidak_dimanfaatkan++;
+        }
+      }
+
+      // Update data di SLS
       await slsModel.updateOne(
         { "geojson.features.properties.kode": slsKode },
         {
