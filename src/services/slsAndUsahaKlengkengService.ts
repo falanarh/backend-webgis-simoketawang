@@ -5,15 +5,11 @@ import slsModel from "../models/slsModel";
 // Fungsi untuk memperbarui agregat semua SLS
 async function updateAllSlsAggregates(): Promise<void> {
   try {
-    console.log("Memulai proses pembaruan agregat SLS...");
-
     // Ambil seluruh kode SLS yang ada dari koleksi Sls
     const slsList = await slsModel.find({}, { kode: 1 });
-    console.log(`Ditemukan ${slsList.length} SLS untuk diperbarui.`);
 
     for (const sls of slsList) {
       const slsKode = sls.kode;
-      console.log(`Memproses SLS dengan kode: ${slsKode}`);
 
       // Agregasi data dari koleksi UsahaKlengkeng untuk kode SLS saat ini
       const aggregationResult = await usahaKlengkengModel.aggregate([
@@ -22,11 +18,7 @@ async function updateAllSlsAggregates(): Promise<void> {
         },
         {
           $group: {
-            _id: {
-              kodeSls: "$kodeSls",
-              jenis_pupuk: "$jenis_pupuk",
-              pemanfaatan_produk: "$pemanfaatan_produk",
-            },
+            _id: "$kodeSls",
             totalUsaha: { $sum: 1 },
             totalPohon: { $sum: "$jml_pohon" },
             totalPohonNewCrystal: { $sum: "$jml_pohon_new_crystal" },
@@ -39,12 +31,76 @@ async function updateAllSlsAggregates(): Promise<void> {
             totalVolumeProduksi: { $sum: "$volume_produksi" },
           },
         },
+        {
+          $lookup: {
+            from: "usahaklengkengs",
+            let: { kodeSls: "$_id" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$kodeSls", "$$kodeSls"] } } },
+              { $unwind: "$jenis_pupuk" },
+              {
+                $group: {
+                  _id: "$jenis_pupuk",
+                  count: { $sum: 1 }
+                }
+              },
+              {
+                $group: {
+                  _id: null,
+                  jenisPupuk: {
+                    $push: { k: "$_id", v: "$count" }
+                  }
+                }
+              }
+            ],
+            as: "jenisPupukAggregate",
+          }
+        },
+        {
+          $lookup: {
+            from: "usahaklengkengs",
+            let: { kodeSls: "$_id" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$kodeSls", "$$kodeSls"] } } },
+              { $unwind: "$pemanfaatan_produk" },
+              {
+                $group: {
+                  _id: "$pemanfaatan_produk",
+                  count: { $sum: 1 }
+                }
+              },
+              {
+                $group: {
+                  _id: null,
+                  pemanfaatanProduk: {
+                    $push: { k: "$_id", v: "$count" }
+                  }
+                }
+              }
+            ],
+            as: "pemanfaatanProdukAggregate",
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            totalUsaha: 1,
+            totalPohon: 1,
+            totalPohonNewCrystal: 1,
+            totalPohonPingpong: 1,
+            totalPohonMetalada: 1,
+            totalPohonDiamondRiver: 1,
+            totalPohonMerah: 1,
+            totalPohonBlmBerproduksi: 1,
+            totalPohonSdhBerproduksi: 1,
+            totalVolumeProduksi: 1,
+            jenisPupukAggregate: { $arrayElemAt: ["$jenisPupukAggregate.jenisPupuk", 0] },
+            pemanfaatanProdukAggregate: { $arrayElemAt: ["$pemanfaatanProdukAggregate.pemanfaatanProduk", 0] },
+          }
+        }
       ]);
 
-      console.log(`Ditemukan ${aggregationResult.length} hasil agregasi untuk SLS ${slsKode}.`);
-
-      // Persiapan data akhir untuk update ke SLS
-      const aggregatedData = {
+      const aggregatedData = aggregationResult.length > 0 ? aggregationResult[0] : {
         totalUsaha: 0,
         totalPohon: 0,
         totalPohonNewCrystal: 0,
@@ -55,69 +111,39 @@ async function updateAllSlsAggregates(): Promise<void> {
         totalPohonBlmBerproduksi: 0,
         totalPohonSdhBerproduksi: 0,
         totalVolumeProduksi: 0,
-        jenisPupukCounts: {
-          organik: 0,
-          anorganik: 0,
-          tidak_ada_pupuk: 0,
-        },
-        pemanfaatanProdukCounts: {
-          kopi_biji_klengkeng: 0,
-          kerajinan_tangan: 0,
-          batik_ecoprint: 0,
-          minuman: 0,
-          makanan: 0,
-          tidak_dimanfaatkan: 0,
-        },
+        jenisPupukAggregate: [],
+        pemanfaatanProdukAggregate: [],
       };
 
-      for (const data of aggregationResult) {
-        aggregatedData.totalUsaha += data.totalUsaha;
-        aggregatedData.totalPohon += data.totalPohon;
-        aggregatedData.totalPohonNewCrystal += data.totalPohonNewCrystal;
-        aggregatedData.totalPohonPingpong += data.totalPohonPingpong;
-        aggregatedData.totalPohonMetalada += data.totalPohonMetalada;
-        aggregatedData.totalPohonDiamondRiver += data.totalPohonDiamondRiver;
-        aggregatedData.totalPohonMerah += data.totalPohonMerah;
-        aggregatedData.totalPohonBlmBerproduksi += data.totalPohonBlmBerproduksi;
-        aggregatedData.totalPohonSdhBerproduksi += data.totalPohonSdhBerproduksi;
-        aggregatedData.totalVolumeProduksi += data.totalVolumeProduksi;
+      const jenisPupuk = aggregatedData.jenisPupukAggregate.reduce((acc: any, curr: any) => {
+        acc[curr.k] = curr.v;
+        return acc;
+      }, {});
 
-        // Hitung jenis pupuk
-        if (data._id.jenis_pupuk.includes("organik")) {
-          aggregatedData.jenisPupukCounts.organik++;
-        }
-        if (data._id.jenis_pupuk.includes("anorganik")) {
-          aggregatedData.jenisPupukCounts.anorganik++;
-        }
-        if (data._id.jenis_pupuk.includes("tidak_ada_pupuk")) {
-          aggregatedData.jenisPupukCounts.tidak_ada_pupuk++;
-        }
+      const pemanfaatanProduk = aggregatedData.pemanfaatanProdukAggregate.reduce((acc: any, curr: any) => {
+        acc[curr.k] = curr.v;
+        return acc;
+      }, {});
 
-        // Hitung pemanfaatan produk
-        if (data._id.pemanfaatan_produk.includes("kopi_biji_klengkeng")) {
-          aggregatedData.pemanfaatanProdukCounts.kopi_biji_klengkeng++;
-        }
-        if (data._id.pemanfaatan_produk.includes("kerajinan_tangan")) {
-          aggregatedData.pemanfaatanProdukCounts.kerajinan_tangan++;
-        }
-        if (data._id.pemanfaatan_produk.includes("batik_ecoprint")) {
-          aggregatedData.pemanfaatanProdukCounts.batik_ecoprint++;
-        }
-        if (data._id.pemanfaatan_produk.includes("minuman")) {
-          aggregatedData.pemanfaatanProdukCounts.minuman++;
-        }
-        if (data._id.pemanfaatan_produk.includes("makanan")) {
-          aggregatedData.pemanfaatanProdukCounts.makanan++;
-        }
-        if (data._id.pemanfaatan_produk.includes("tidak_dimanfaatkan")) {
-          aggregatedData.pemanfaatanProdukCounts.tidak_dimanfaatkan++;
-        }
-      }
+      // Menyimpan nilai total berdasarkan jenis pupuk
+      const totalPupukOrganik = jenisPupuk["organik"] || 0;
+      const totalPupukAnorganik = jenisPupuk["anorganik"] || 0;
+      const totalTidakAdaPupuk = jenisPupuk["tidak_ada_pupuk"] || 0;
 
-      console.log(`Data agregasi yang telah dihitung untuk SLS ${slsKode}:`, aggregatedData);
+      // Menyimpan nilai total berdasarkan pemanfaatan produk
+      const totalKopiBijiKelengkeng = pemanfaatanProduk["kopi_biji_klengkeng"] || 0;
+      const totalKerajinanTangan = pemanfaatanProduk["kerajinan_tangan"] || 0;
+      const totalBatikEcoprint = pemanfaatanProduk["batik_ecoprint"] || 0;
+      const totalMinuman = pemanfaatanProduk["minuman"] || 0;
+      const totalMakanan = pemanfaatanProduk["makanan"] || 0;
+      const totalTidakDimanfaatkan = pemanfaatanProduk["tidak_dimanfaatkan"] || 0;
 
-      // Update data di SLS
-      const updateResult = await slsModel.updateOne(
+      // console.log("Kode SLS:", slsKode);
+      // console.log("Aggregated Data:", aggregatedData);
+      // console.log("Jenis Pupuk:", jenisPupuk);
+      // console.log("Pemanfaatan Produk:", pemanfaatanProduk);
+
+      await slsModel.updateOne(
         { "geojson.features.properties.kode": slsKode },
         {
           $set: {
@@ -131,20 +157,18 @@ async function updateAllSlsAggregates(): Promise<void> {
             "geojson.features.$.properties.jml_pohon_sdh_berproduksi": aggregatedData.totalPohonSdhBerproduksi,
             "geojson.features.$.properties.volume_produksi": aggregatedData.totalVolumeProduksi,
             "geojson.features.$.properties.jml_unit_usaha_klengkeng": aggregatedData.totalUsaha,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pupuk_organik": aggregatedData.jenisPupukCounts.organik,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pupuk_anorganik": aggregatedData.jenisPupukCounts.anorganik,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_tidak_ada_pupuk": aggregatedData.jenisPupukCounts.tidak_ada_pupuk,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_kopi_biji_klengkeng": aggregatedData.pemanfaatanProdukCounts.kopi_biji_klengkeng,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_kerajinan_tangan": aggregatedData.pemanfaatanProdukCounts.kerajinan_tangan,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_batik_ecoprint": aggregatedData.pemanfaatanProdukCounts.batik_ecoprint,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_minuman": aggregatedData.pemanfaatanProdukCounts.minuman,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_makanan": aggregatedData.pemanfaatanProdukCounts.makanan,
-            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pemanfaatan_tidak_dimanfaatkan": aggregatedData.pemanfaatanProdukCounts.tidak_dimanfaatkan,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pupuk_organik": totalPupukOrganik,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_pupuk_anorganik": totalPupukAnorganik,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_tidak_ada_pupuk": totalTidakAdaPupuk,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_kopi_biji_klengkeng": totalKopiBijiKelengkeng,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_kerajinan_tangan": totalKerajinanTangan,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_batik_ecoprint": totalBatikEcoprint,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_minuman": totalMinuman,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_makanan": totalMakanan,
+            "geojson.features.$.properties.jml_unit_usaha_klengkeng_tidak_dimanfaatkan": totalTidakDimanfaatkan,
           },
         }
       );
-
-      console.log(`Hasil update untuk SLS ${slsKode}:`, updateResult);
     }
 
     console.log("Agregasi SLS berhasil diperbarui.");
