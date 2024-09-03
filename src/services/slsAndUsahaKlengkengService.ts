@@ -5,11 +5,15 @@ import slsModel from "../models/slsModel";
 // Fungsi untuk memperbarui agregat semua SLS
 async function updateAllSlsAggregates(): Promise<void> {
   try {
+    console.log("Memulai proses pembaruan agregat SLS...");
+
     // Ambil seluruh kode SLS yang ada dari koleksi Sls
     const slsList = await slsModel.find({}, { kode: 1 });
+    console.log(`Ditemukan ${slsList.length} SLS untuk diperbarui.`);
 
     for (const sls of slsList) {
       const slsKode = sls.kode;
+      console.log(`Memproses SLS dengan kode: ${slsKode}`);
 
       // Agregasi data dari koleksi UsahaKlengkeng untuk kode SLS saat ini
       const aggregationResult = await usahaKlengkengModel.aggregate([
@@ -36,6 +40,8 @@ async function updateAllSlsAggregates(): Promise<void> {
           },
         },
       ]);
+
+      console.log(`Ditemukan ${aggregationResult.length} hasil agregasi untuk SLS ${slsKode}.`);
 
       // Persiapan data akhir untuk update ke SLS
       const aggregatedData = {
@@ -108,8 +114,10 @@ async function updateAllSlsAggregates(): Promise<void> {
         }
       }
 
+      console.log(`Data agregasi yang telah dihitung untuk SLS ${slsKode}:`, aggregatedData);
+
       // Update data di SLS
-      await slsModel.updateOne(
+      const updateResult = await slsModel.updateOne(
         { "geojson.features.properties.kode": slsKode },
         {
           $set: {
@@ -135,6 +143,8 @@ async function updateAllSlsAggregates(): Promise<void> {
           },
         }
       );
+
+      console.log(`Hasil update untuk SLS ${slsKode}:`, updateResult);
     }
 
     console.log("Agregasi SLS berhasil diperbarui.");
