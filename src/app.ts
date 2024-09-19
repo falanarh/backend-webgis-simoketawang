@@ -31,6 +31,7 @@ app.use(
     origin: [
       "https://desa-cantik-sda.vercel.app",
       "http://localhost:5173",
+      "http://127.0.0.1:5173",
       "https://desacantik.pahlawan140.com",
     ], // Ganti dengan domain Anda
     // origin: "https://desa-cantik-sda.vercel.app",
